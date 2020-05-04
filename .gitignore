@@ -1,0 +1,18 @@
+# VS Code
+.vscode
+.classpath
+.project
+.settings
+.factorypath
+bin
+
+# IntelliJ IDEA
+.idea
+*.iml
+
+# Gradle
+.gradle
+
+# Project
+*.log
+*.script
