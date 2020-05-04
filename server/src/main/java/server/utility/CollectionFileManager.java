@@ -36,7 +36,7 @@ public class CollectionFileManager {
         if (System.getenv().get(envVariable) != null) {
             try (FileWriter collectionFileWriter = new FileWriter(new File(System.getenv().get(envVariable)))) {
                 collectionFileWriter.write(gson.toJson(collection));
-                ResponseOutputer.appendln("Коллекция успешно сохранена в файл.");
+                ResponseOutputer.appendln("Коллекция сохранена в файл.");
             } catch (IOException exception) {
                 ResponseOutputer.appenderror("Загрузочный файл является директорией/не может быть открыт!");
             }
@@ -53,8 +53,8 @@ public class CollectionFileManager {
                 TreeSet<SpaceMarine> collection;
                 Type collectionType = new TypeToken<TreeSet<SpaceMarine>>() {}.getType();
                 collection = gson.fromJson(collectionFileScanner.nextLine().trim(), collectionType);
-                Outputer.println("Коллекция успешно загружена.");
-                App.logger.info("Коллекция успешно загружена.");
+                Outputer.println("Коллекция загружена.");
+                App.logger.info("Коллекция загружена.");
                 return collection;
             } catch (FileNotFoundException exception) {
                 Outputer.printerror("Загрузочный файл не найден!");

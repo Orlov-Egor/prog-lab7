@@ -8,6 +8,7 @@ import common.interaction.ResponseCode;
  * Handles requests.
  */
 public class RequestHandler {
+    // TODO: Тут есть какая-то кривая синхронизация
     private CommandManager commandManager;
 
     public RequestHandler(CommandManager commandManager) {
@@ -19,7 +20,7 @@ public class RequestHandler {
     * @param request Request to be processed.
     * @return Response to request.
     */
-    public Response handle(Request request) {
+    public synchronized Response handle(Request request) {
         commandManager.addToHistory(request.getCommandName());
         ResponseCode responseCode = executeCommand(request.getCommandName(), request.getCommandStringArgument(),
                 request.getCommandObjectArgument());
@@ -33,7 +34,7 @@ public class RequestHandler {
     * @param commandObjectArgument Object argument for command.
     * @return Command execute status.
     */
-    private ResponseCode executeCommand(String command, String commandStringArgument,
+    private synchronized ResponseCode executeCommand(String command, String commandStringArgument,
                                         Object commandObjectArgument) {
         switch (command) {
             case "":
@@ -77,7 +78,7 @@ public class RequestHandler {
             case "exit":
                 if (!commandManager.exit(commandStringArgument, commandObjectArgument))
                     return ResponseCode.ERROR;
-                break;
+                return ResponseCode.CLIENT_EXIT;
             case "add_if_min":
                 if (!commandManager.addIfMin(commandStringArgument, commandObjectArgument))
                     return ResponseCode.ERROR;

@@ -62,7 +62,7 @@ public class Client {
                 reconnectionAttempts++;
             }
             if (socketChannel != null) socketChannel.close();
-            Outputer.println("Работа клиента успешно завершена.");
+            Outputer.println("Работа клиента завершена.");
         } catch (NotInDeclaredLimitsException exception) {
             Outputer.printerror("Клиент не может быть запущен!");
         } catch (IOException exception) {
@@ -77,7 +77,7 @@ public class Client {
         try {
             if (reconnectionAttempts >= 1) Outputer.println("Повторное соединение с сервером...");
             socketChannel = SocketChannel.open(new InetSocketAddress(host, port));
-            Outputer.println("Соединение с сервером успешно установлено.");
+            Outputer.println("Соединение с сервером установлено.");
             Outputer.println("Ожидание разрешения на обмен данными...");
             serverWriter = new ObjectOutputStream(socketChannel.socket().getOutputStream());
             serverReader = new ObjectInputStream(socketChannel.socket().getInputStream());
