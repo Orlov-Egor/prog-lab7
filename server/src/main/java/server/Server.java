@@ -8,7 +8,6 @@ import common.interaction.Response;
 import common.interaction.ResponseCode;
 import common.utility.Outputer;
 import server.utility.RequestHandler;
-import server.utility.ResponseOutputer;
 
 import java.io.*;
 import java.net.ServerSocket;
