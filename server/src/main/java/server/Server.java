@@ -39,7 +39,7 @@ public class Server {
             while (!isStopped()) {
                 try {
                     Socket clientSocket = connectToClient();
-                    cachedThreadPool.execute(new ConnectionHandler(this, clientSocket, commandManager));
+                    cachedThreadPool.submit(new ConnectionHandler(this, clientSocket, commandManager));
                 } catch (ConnectionErrorException exception) {
                     if (!isStopped()) {
                         Outputer.printerror("Произошла ошибка при соединении с клиентом!");
