@@ -4,23 +4,19 @@ import common.interaction.Request;
 import common.interaction.Response;
 import common.interaction.ResponseCode;
 
-/**
- * Handles requests.
- */
-public class RequestHandler {
-    // TODO: Тут есть какая-то кривая синхронизация
+import java.util.concurrent.RecursiveTask;
+
+public class HandleRequestTask extends RecursiveTask<Response> {
+    private Request request;
     private CommandManager commandManager;
 
-    public RequestHandler(CommandManager commandManager) {
+    public HandleRequestTask(Request request, CommandManager commandManager) {
+        this.request = request;
         this.commandManager = commandManager;
     }
 
-    /**
-    * Handles requests.
-    * @param request Request to be processed.
-    * @return Response to request.
-    */
-    public synchronized Response handle(Request request) {
+    @Override
+    protected Response compute() {
         commandManager.addToHistory(request.getCommandName());
         ResponseCode responseCode = executeCommand(request.getCommandName(), request.getCommandStringArgument(),
                 request.getCommandObjectArgument());
@@ -28,14 +24,14 @@ public class RequestHandler {
     }
 
     /**
-    * Executes a command from a request.
-    * @param command Name of command.
-    * @param commandStringArgument String argument for command.
-    * @param commandObjectArgument Object argument for command.
-    * @return Command execute status.
-    */
+     * Executes a command from a request.
+     * @param command Name of command.
+     * @param commandStringArgument String argument for command.
+     * @param commandObjectArgument Object argument for command.
+     * @return Command execute status.
+     */
     private synchronized ResponseCode executeCommand(String command, String commandStringArgument,
-                                        Object commandObjectArgument) {
+                                                     Object commandObjectArgument) {
         switch (command) {
             case "":
                 break;

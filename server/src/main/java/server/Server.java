@@ -4,8 +4,8 @@ import common.exceptions.ClosingSocketException;
 import common.exceptions.ConnectionErrorException;
 import common.exceptions.OpeningServerSocketException;
 import common.utility.Outputer;
+import server.utility.CommandManager;
 import server.utility.ConnectionHandler;
-import server.utility.RequestHandler;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -21,13 +21,13 @@ public class Server {
     // TODO: Тут есть какая-то кривая синхронизация
     private int port;
     private ServerSocket serverSocket;
-    private RequestHandler requestHandler;
+    private CommandManager commandManager;
     private boolean isStopped;
     private ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
 
-    public Server(int port, RequestHandler requestHandler) {
+    public Server(int port, CommandManager commandManager) {
         this.port = port;
-        this.requestHandler = requestHandler;
+        this.commandManager = commandManager;
     }
 
     /**
@@ -39,7 +39,7 @@ public class Server {
             while (!isStopped()) {
                 try {
                     Socket clientSocket = connectToClient();
-                    cachedThreadPool.execute(new ConnectionHandler(this, clientSocket, requestHandler));
+                    cachedThreadPool.execute(new ConnectionHandler(this, clientSocket, commandManager));
                 } catch (ConnectionErrorException exception) {
                     if (!isStopped()) {
                         Outputer.printerror("Произошла ошибка при соединении с клиентом!");

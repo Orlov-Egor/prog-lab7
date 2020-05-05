@@ -6,7 +6,6 @@ import server.commands.*;
 import server.utility.CollectionFileManager;
 import server.utility.CollectionManager;
 import server.utility.CommandManager;
-import server.utility.RequestHandler;
 
 /**
  * Main server class. Creates all server instances.
@@ -39,8 +38,7 @@ public class App {
                 new FilterByWeaponTypeCommand(collectionManager),
                 new ServerExitCommand()
         );
-        RequestHandler requestHandler = new RequestHandler(commandManager);
-        Server server = new Server(PORT, requestHandler);
+        Server server = new Server(PORT, commandManager);
         server.run();
     }
 }

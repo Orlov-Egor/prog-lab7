@@ -49,7 +49,7 @@ public class UserHandler {
                     while (fileMode() && !userScanner.hasNextLine()) {
                         userScanner.close();
                         userScanner = scannerStack.pop();
-                        Outputer.println("Возвращаюсь к скрипту '" + scriptStack.pop().getName() + "'...");
+                        scriptStack.pop();
                     }
                     if (fileMode()) {
                         userInput = userScanner.nextLine();

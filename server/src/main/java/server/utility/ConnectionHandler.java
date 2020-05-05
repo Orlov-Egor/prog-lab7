@@ -9,16 +9,18 @@ import server.Server;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.concurrent.ForkJoinPool;
 
 public class ConnectionHandler implements Runnable {
     private Server server;
     private Socket clientSocket;
-    private RequestHandler requestHandler;
+    private CommandManager commandManager;
+    ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
 
-    public ConnectionHandler(Server server, Socket clientSocket, RequestHandler requestHandler) {
+    public ConnectionHandler(Server server, Socket clientSocket, CommandManager commandManager) {
         this.server = server;
         this.clientSocket = clientSocket;
-        this.requestHandler = requestHandler;
+        this.commandManager = commandManager;
     }
 
     @Override
@@ -29,7 +31,7 @@ public class ConnectionHandler implements Runnable {
              ObjectOutputStream clientWriter = new ObjectOutputStream(clientSocket.getOutputStream())) {
             do {
                 userRequest = (Request) clientReader.readObject();
-                responseToUser = requestHandler.handle(userRequest);
+                responseToUser = forkJoinPool.invoke(new HandleRequestTask(userRequest, commandManager));
                 App.logger.info("Запрос '" + userRequest.getCommandName() + "' обработан.");
                 clientWriter.writeObject(responseToUser);
                 clientWriter.flush();
