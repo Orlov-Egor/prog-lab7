@@ -63,6 +63,21 @@ public class Server {
         }
     }
 
+    public void acquireConnection() {
+        try {
+            semaphore.acquire();
+            App.logger.info("Разрешение на новое соединение получено.");
+        } catch (InterruptedException exception) {
+            Outputer.printerror("Произошла ошибка при получении разрешения на новое соединение!");
+            App.logger.error("Произошла ошибка при получении разрешения на новое соединение!");
+        }
+    }
+
+    public void releaseConnection() {
+        semaphore.release();
+        App.logger.info("Разрыв соединения зарегистрирован.");
+    }
+
     /**
     * Finishes server operation.
     */
@@ -123,20 +138,5 @@ public class Server {
         } catch (IOException exception) {
             throw new ConnectionErrorException();
         }
-    }
-
-    public void acquireConnection() {
-        try {
-            semaphore.acquire();
-            App.logger.info("Разрешение на новое соединение получено.");
-        } catch (InterruptedException exception) {
-            Outputer.printerror("Произошла ошибка при получении разрешения на новое соединение!");
-            App.logger.error("Произошла ошибка при получении разрешения на новое соединение!");
-        }
-    }
-
-    public void releaseConnection() {
-        semaphore.release();
-        App.logger.info("Разрыв соединения зарегистрирован.");
     }
 }
