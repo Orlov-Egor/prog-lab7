@@ -74,6 +74,7 @@ public class ConnectionHandler implements Runnable {
                 App.logger.error("Произошла ошибка при попытке завершить соединение с клиентом!");
             }
             if (stopFlag) server.stop();
+            server.releaseConnection();
         }
     }
 }

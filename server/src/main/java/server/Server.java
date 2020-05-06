@@ -12,24 +12,26 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Runs the server.
  */
 public class Server {
     private int port;
+    private int maxClients;
     private ServerSocket serverSocket;
     private CommandManager commandManager;
     private boolean isStopped;
     private ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
-    private ReadWriteLock locker = new ReentrantReadWriteLock();
+    private Semaphore semaphore;
 
-    public Server(int port, CommandManager commandManager) {
+    public Server(int port, int maxClients, CommandManager commandManager) {
         this.port = port;
+        this.maxClients = maxClients;
         this.commandManager = commandManager;
+        this.semaphore = new Semaphore(maxClients);
     }
 
     /**
@@ -40,6 +42,8 @@ public class Server {
             openServerSocket();
             while (!isStopped()) {
                 try {
+                    acquireConnection();
+                    if (isStopped()) throw new ConnectionErrorException();
                     Socket clientSocket = connectToClient();
                     cachedThreadPool.submit(new ConnectionHandler(this, clientSocket, commandManager));
                 } catch (ConnectionErrorException exception) {
@@ -62,8 +66,7 @@ public class Server {
     /**
     * Finishes server operation.
     */
-    public void stop() {
-        locker.writeLock().lock();
+    public synchronized void stop() {
         try {
             App.logger.info("Завершение работы сервера...");
             if (serverSocket == null) throw new ClosingSocketException();
@@ -79,20 +82,12 @@ public class Server {
             Outputer.printerror("Произошла ошибка при завершении работы сервера!");
             Outputer.println("Завершение работы с уже подключенными клиентами...");
             App.logger.error("Произошла ошибка при завершении работы сервера!");
-        } finally {
-            locker.writeLock().unlock();
         }
     }
 
-    private boolean isStopped()
+    private synchronized boolean isStopped()
     {
-        locker.readLock().lock();
-        try {
-            return isStopped;
-        } finally {
-            locker.readLock().unlock();
-        }
-
+        return isStopped;
     }
 
     /**
@@ -128,5 +123,20 @@ public class Server {
         } catch (IOException exception) {
             throw new ConnectionErrorException();
         }
+    }
+
+    public void acquireConnection() {
+        try {
+            semaphore.acquire();
+            App.logger.info("Разрешение на новое соединение получено.");
+        } catch (InterruptedException exception) {
+            Outputer.printerror("Произошла ошибка при получении разрешения на новое соединение!");
+            App.logger.error("Произошла ошибка при получении разрешения на новое соединение!");
+        }
+    }
+
+    public void releaseConnection() {
+        semaphore.release();
+        App.logger.info("Разрыв соединения зарегистрирован.");
     }
 }

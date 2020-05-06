@@ -18,6 +18,8 @@ public class App {
     public static final String ENV_VARIABLE = "LABA";
     public static Logger logger = LogManager.getLogger("ServerLogger");
 
+    private static final int MAX_CLIENTS = 1000;
+
     private static int port;
 
     private static boolean initializePort(String[] portArgs) {
@@ -67,7 +69,7 @@ public class App {
                 new FilterByWeaponTypeCommand(collectionManager),
                 new ServerExitCommand()
         );
-        Server server = new Server(port, commandManager);
+        Server server = new Server(port, MAX_CLIENTS, commandManager);
         server.run();
     }
 }
