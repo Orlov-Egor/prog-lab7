@@ -45,7 +45,6 @@ public class ConnectionHandler implements Runnable {
                         clientWriter.flush();
                         return true;
                     } catch (IOException exception) {
-                        exception.printStackTrace();
                         Outputer.printerror("Произошла ошибка при отправке данных на клиент!");
                         App.logger.error("Произошла ошибка при отправке данных на клиент!");
                     }
@@ -56,12 +55,9 @@ public class ConnectionHandler implements Runnable {
             if (responseToUser.getResponseCode() == ResponseCode.SERVER_EXIT)
                 stopFlag = true;
         } catch (ClassNotFoundException exception) {
-            exception.printStackTrace();
             Outputer.printerror("Произошла ошибка при чтении полученных данных!");
             App.logger.error("Произошла ошибка при чтении полученных данных!");
-        } catch (CancellationException | ExecutionException |
-                RejectedExecutionException | InterruptedException exception) {
-            exception.printStackTrace();
+        } catch (CancellationException | ExecutionException | InterruptedException exception) {
             Outputer.println("При обработке запроса произошла ошибка многопоточности!");
             App.logger.warn("При обработке запроса произошла ошибка многопоточности!");
         } catch (IOException exception) {

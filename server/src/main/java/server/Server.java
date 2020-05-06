@@ -13,17 +13,19 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Runs the server.
  */
 public class Server {
-    // TODO: Тут есть какая-то кривая синхронизация
     private int port;
     private ServerSocket serverSocket;
     private CommandManager commandManager;
     private boolean isStopped;
     private ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
+    private ReadWriteLock locker = new ReentrantReadWriteLock();
 
     public Server(int port, CommandManager commandManager) {
         this.port = port;
@@ -60,7 +62,8 @@ public class Server {
     /**
     * Finishes server operation.
     */
-    public synchronized void stop() {
+    public void stop() {
+        locker.writeLock().lock();
         try {
             App.logger.info("Завершение работы сервера...");
             if (serverSocket == null) throw new ClosingSocketException();
@@ -76,13 +79,20 @@ public class Server {
             Outputer.printerror("Произошла ошибка при завершении работы сервера!");
             Outputer.println("Завершение работы с уже подключенными клиентами...");
             App.logger.error("Произошла ошибка при завершении работы сервера!");
+        } finally {
+            locker.writeLock().unlock();
         }
     }
 
-    private synchronized boolean isStopped()
+    private boolean isStopped()
     {
-        // TODO: Заменить на атомарную переменную (?)
-        return isStopped;
+        locker.readLock().lock();
+        try {
+            return isStopped;
+        } finally {
+            locker.readLock().unlock();
+        }
+
     }
 
     /**
@@ -109,7 +119,6 @@ public class Server {
     */
     private Socket connectToClient() throws ConnectionErrorException {
         try {
-            // TODO: Изменить надпись на что-то с потоком
             Outputer.println("Прослушивание порта '" + port + "'...");
             App.logger.info("Прослушивание порта '" + port + "'...");
             Socket clientSocket = serverSocket.accept();
