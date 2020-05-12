@@ -1,0 +1,35 @@
+CREATE TYPE astartes_category AS ENUM ('DREADNOUGHT', 'ASSAULT', 'TACTICAL', 'CHAPLAIN', 'APOTHECARY');
+CREATE TYPE weapon AS ENUM ('HEAVY_BOLTGUN', 'BOLT_PISTOL', 'GRAV_GUN');
+CREATE TYPE melee_weapon AS ENUM ('CHAIN_SWORD', 'CHAIN_AXE', 'LIGHTING_CLAW', 'POWER_BLADE', 'POWER_FIST');
+
+CREATE TABLE my_user (
+	id bigserial PRIMARY KEY,
+	username text NOT NULL UNIQUE,
+	password text NOT NULL
+);
+
+CREATE TABLE chapter (
+	id bigserial PRIMARY KEY,
+	name text NOT NULL CHECK (name <> ''),
+	marines_count bigint NOT NULL CHECK (marines_count > 0 AND marines_count <= 1000)
+);
+
+CREATE TABLE space_marine (
+	id bigserial PRIMARY KEY,
+	name text NOT NULL CHECK (name <> ''),
+	creation_date timestamp NOT NULL,
+	health double precision NOT NULL CHECK (health > 0),
+	category astartes_category NOT NULL,
+	weapon_type weapon NOT NULL,
+	melee_weapon melee_weapon NOT NULL,
+	chapter_id bigint NOT NULL REFERENCES chapter(id),
+	user_id bigint NOT NULL REFERENCES my_user(id)
+);
+
+CREATE TABLE coordinates (
+	id bigserial PRIMARY KEY,
+	space_marine_id bigint UNIQUE NOT NULL REFERENCES space_marine(id) ON DELETE CASCADE,
+	x double precision NOT NULL,
+	y real NOT NULL CHECK (y <= 262),
+	UNIQUE (x, y)
+);

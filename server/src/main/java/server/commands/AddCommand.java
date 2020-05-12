@@ -25,6 +25,7 @@ public class AddCommand extends AbstractCommand {
      */
     @Override
     public boolean execute(String stringArgument, Object objectArgument) {
+        // TODO: При создании объекта нужен пользователь
         try {
             if (!stringArgument.isEmpty() || objectArgument == null) throw new WrongAmountOfElementsException();
             MarineRaw marineRaw = (MarineRaw) objectArgument;
@@ -37,7 +38,8 @@ public class AddCommand extends AbstractCommand {
                 marineRaw.getCategory(),
                 marineRaw.getWeaponType(),
                 marineRaw.getMeleeWeapon(),
-                marineRaw.getChapter()
+                marineRaw.getChapter(),
+                "slamach"
             ));
             ResponseOutputer.appendln("Солдат успешно добавлен!");
             return true;

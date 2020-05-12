@@ -16,11 +16,13 @@ public class CollectionManager {
     private LocalDateTime lastInitTime;
     private LocalDateTime lastSaveTime;
     private CollectionFileManager collectionFileManager;
+    private DatabaseCollectionManager databaseCollectionManager;
 
-    public CollectionManager(CollectionFileManager collectionFileManager) {
+    public CollectionManager(CollectionFileManager collectionFileManager, DatabaseCollectionManager databaseCollectionManager) {
         this.lastInitTime = null;
         this.lastSaveTime = null;
         this.collectionFileManager = collectionFileManager;
+        this.databaseCollectionManager = databaseCollectionManager;
         
         loadCollection();
     }
@@ -166,7 +168,7 @@ public class CollectionManager {
      * Loads the collection from file.
      */
     private void loadCollection() {
-        marinesCollection = collectionFileManager.readCollection();
+        marinesCollection = databaseCollectionManager.getCollection();
         lastInitTime = LocalDateTime.now();
     }
 }

@@ -82,7 +82,7 @@ set CMD_LINE_ARGS=%*
 :execute
 @rem Setup the command line
 
-set CLASSPATH=%APP_HOME%\lib\server.jar;%APP_HOME%\lib\log4j-core-2.13.1.jar;%APP_HOME%\lib\log4j-api-2.13.1.jar;%APP_HOME%\lib\common.jar;%APP_HOME%\lib\gson-2.8.6.jar
+set CLASSPATH=%APP_HOME%\lib\server.jar;%APP_HOME%\lib\log4j-core-2.13.1.jar;%APP_HOME%\lib\log4j-api-2.13.1.jar;%APP_HOME%\lib\postgresql-9.3-1100-jdbc4.jar;%APP_HOME%\lib\common.jar;%APP_HOME%\lib\gson-2.8.6.jar
 
 @rem Execute server
 "%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %SERVER_OPTS%  -classpath "%CLASSPATH%" server.App %CMD_LINE_ARGS%

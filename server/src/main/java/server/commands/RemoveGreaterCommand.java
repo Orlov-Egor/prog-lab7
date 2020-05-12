@@ -27,6 +27,7 @@ public class RemoveGreaterCommand extends AbstractCommand {
      */
     @Override
     public boolean execute(String stringArgument, Object objectArgument) {
+        // TODO: При создании объекта нужен пользователь
         try {
             if (!stringArgument.isEmpty() || objectArgument == null) throw new WrongAmountOfElementsException();
             if (collectionManager.collectionSize() == 0) throw new CollectionIsEmptyException();
@@ -40,7 +41,8 @@ public class RemoveGreaterCommand extends AbstractCommand {
                     marineRaw.getCategory(),
                     marineRaw.getWeaponType(),
                     marineRaw.getMeleeWeapon(),
-                    marineRaw.getChapter()
+                    marineRaw.getChapter(),
+                    "slamach"
             );
             SpaceMarine marineFromCollection = collectionManager.getByValue(marineToFind);
             if (marineFromCollection == null) throw new MarineNotFoundException();

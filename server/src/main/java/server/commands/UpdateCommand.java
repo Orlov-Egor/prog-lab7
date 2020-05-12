@@ -27,6 +27,7 @@ public class UpdateCommand extends AbstractCommand {
      */
     @Override
     public boolean execute(String stringArgument, Object objectArgument) {
+        // TODO: При создании объекта нужен пользователь
         try {
             if (stringArgument.isEmpty() || objectArgument == null) throw new WrongAmountOfElementsException();
             if (collectionManager.collectionSize() == 0) throw new CollectionIsEmptyException();
@@ -56,7 +57,8 @@ public class UpdateCommand extends AbstractCommand {
                 category,
                 weaponType,
                 meleeWeapon,
-                chapter
+                chapter,
+                "slamach"
             ));
             ResponseOutputer.appendln("Солдат успешно изменен!");
             return true;

@@ -1,14 +1,15 @@
 package server;
 
+import common.data.*;
 import common.exceptions.NotInDeclaredLimitsException;
 import common.exceptions.WrongAmountOfElementsException;
 import common.utility.Outputer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import server.commands.*;
-import server.utility.CollectionFileManager;
-import server.utility.CollectionManager;
-import server.utility.CommandManager;
+import server.utility.*;
+
+import java.time.LocalDateTime;
 
 /**
  * Main server class. Creates all server instances.
@@ -34,7 +35,7 @@ public class App {
                     .getLocation()
                     .getPath())
                     .getName();
-            Outputer.println("Использование: 'java -jar " + jarName + " <host> <port>'");
+            Outputer.println("Использование: 'java -jar " + jarName + " <port>'");
         } catch (NumberFormatException exception) {
             Outputer.printerror("Порт должен быть представлен числом!");
             App.logger.fatal("Порт должен быть представлен числом!");
@@ -49,7 +50,13 @@ public class App {
     public static void main(String[] args) {
         if (!initializePort(args)) return;
         CollectionFileManager collectionFileManager = new CollectionFileManager(ENV_VARIABLE);
-        CollectionManager collectionManager = new CollectionManager(collectionFileManager);
+
+        // TODO: TEST
+        DatabaseHandler databaseHandler = new DatabaseHandler("jdbc:postgresql://localhost:5432/studs", "s284724", "sgf353");
+        DatabaseUserManager databaseUserManager = new DatabaseUserManager(databaseHandler);
+        DatabaseCollectionManager databaseCollectionManager = new DatabaseCollectionManager(databaseHandler, databaseUserManager);
+
+        CollectionManager collectionManager = new CollectionManager(collectionFileManager, databaseCollectionManager);
         CommandManager commandManager = new CommandManager(
                 new HelpCommand(),
                 new InfoCommand(collectionManager),
@@ -71,5 +78,8 @@ public class App {
         );
         Server server = new Server(port, MAX_CLIENTS, commandManager);
         server.run();
+
+        // TODO: TEST
+        databaseHandler.closeConnection();
     }
 }

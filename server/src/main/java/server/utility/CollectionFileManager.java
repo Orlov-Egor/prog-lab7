@@ -21,6 +21,7 @@ import java.util.TreeSet;
  * Operates the file for saving/loading collection.
  */
 public class CollectionFileManager {
+    // TODO: Класс на удаление
     private Gson gson = new Gson();
     private String envVariable;
 
