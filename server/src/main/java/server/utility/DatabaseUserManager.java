@@ -1,7 +1,6 @@
 package server.utility;
 
 import common.data.User;
-import common.utility.Outputer;
 import server.App;
 
 import java.sql.PreparedStatement;
