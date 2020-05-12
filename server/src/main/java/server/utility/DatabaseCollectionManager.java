@@ -13,9 +13,10 @@ import java.util.NavigableSet;
 import java.util.TreeSet;
 
 public class DatabaseCollectionManager {
-    // TODO: Переделать выводы в логгер и консоль
     // MARINE_TABLE
     private final String SELECT_ALL_MARINES = "SELECT * FROM " + DatabaseHandler.MARINE_TABLE;
+    private final String SELECT_MARINE_BY_ID = SELECT_ALL_MARINES + " WHERE " +
+            DatabaseHandler.MARINE_TABLE_ID_COLUMN + " = ?";
     private final String INSERT_MARINE = "INSERT INTO " +
             DatabaseHandler.MARINE_TABLE + " (" +
             DatabaseHandler.MARINE_TABLE_NAME_COLUMN + ", " +
@@ -27,6 +28,8 @@ public class DatabaseCollectionManager {
             DatabaseHandler.MARINE_TABLE_CHAPTER_ID_COLUMN + ", " +
             DatabaseHandler.MARINE_TABLE_USER_ID_COLUMN + ") VALUES (?, ?, ?, ?::astartes_category," +
             "?::weapon, ?::melee_weapon, ?, ?)";
+    private final String DELETE_MARINE_BY_ID = "DELETE FROM " + DatabaseHandler.MARINE_TABLE +
+            " WHERE " + DatabaseHandler.MARINE_TABLE_ID_COLUMN + " = ?";
     // COORDINATES_TABLE
     private final String SELECT_ALL_COORDINATES = "SELECT * FROM " + DatabaseHandler.COORDINATES_TABLE;
     private final String SELECT_COORDINATES_BY_MARINE_ID = SELECT_ALL_COORDINATES +
@@ -36,6 +39,8 @@ public class DatabaseCollectionManager {
             DatabaseHandler.COORDINATES_TABLE_SPACE_MARINE_ID_COLUMN + ", " +
             DatabaseHandler.COORDINATES_TABLE_X_COLUMN + ", " +
             DatabaseHandler.COORDINATES_TABLE_Y_COLUMN + ") VALUES (?, ?, ?)";
+    private final String DELETE_COORDINATES_BY_MARINE_ID = "DELETE FROM " + DatabaseHandler.COORDINATES_TABLE +
+            " WHERE " + DatabaseHandler.COORDINATES_TABLE_SPACE_MARINE_ID_COLUMN + " = ?";
     // CHAPTER_TABLE
     private final String SELECT_ALL_CHAPTER = "SELECT * FROM " + DatabaseHandler.CHAPTER_TABLE;
     private final String SELECT_CHAPTER_BY_ID = SELECT_ALL_CHAPTER +
@@ -44,6 +49,8 @@ public class DatabaseCollectionManager {
             DatabaseHandler.CHAPTER_TABLE + " (" +
             DatabaseHandler.CHAPTER_TABLE_NAME_COLUMN + ", " +
             DatabaseHandler.CHAPTER_TABLE_MARINES_COUNT_COLUMN + ") VALUES (?, ?)";
+    private final String DELETE_CHAPTER_BY_ID = "DELETE FROM " + DatabaseHandler.CHAPTER_TABLE +
+            " WHERE " + DatabaseHandler.CHAPTER_TABLE_ID_COLUMN + " = ?";
 
     private DatabaseHandler databaseHandler;
     private DatabaseUserManager databaseUserManager;
@@ -90,7 +97,6 @@ public class DatabaseCollectionManager {
             Outputer.println("Коллекция загружена.");
             App.logger.info("Коллекция загружена.");
         } catch (SQLException exception) {
-            // TODO: Обработать
             Outputer.printerror("Коллекция не может быть загружена!");
             App.logger.error("Коллекция не может быть загружена!");
         } finally {
@@ -98,9 +104,29 @@ public class DatabaseCollectionManager {
         }
         return marineList;
     }
+    public long getChapterIdByMarineId(long marineId) throws SQLException {
+        long chapterId;
+        PreparedStatement preparedSelectMarineByIdStatement = null;
+        try {
+            preparedSelectMarineByIdStatement = databaseHandler.getPreparedStatement(SELECT_MARINE_BY_ID, false);
+            preparedSelectMarineByIdStatement.setLong(1, marineId);
+            ResultSet resultSet = preparedSelectMarineByIdStatement.executeQuery();
+            if (resultSet.next()) {
+                chapterId = resultSet.getLong(DatabaseHandler.MARINE_TABLE_CHAPTER_ID_COLUMN);
+            } else throw new SQLException();
+            App.logger.info("Выполнен запрос SELECT_MARINE_BY_ID.");
+        } catch (SQLException exception) {
+            App.logger.error("Произошла ошибка при выполнении запроса SELECT_MARINE_BY_ID!");
+            throw new SQLException(exception);
+        } finally {
+            databaseHandler.closePreparedStatement(preparedSelectMarineByIdStatement);
+        }
+        return chapterId;
+    }
+
 
     public Coordinates getCoordinatesByMarineId(long marineId) throws SQLException {
-        Coordinates coordinates = null;
+        Coordinates coordinates;
         PreparedStatement preparedSelectCoordinatesByMarineIdStatement = null;
         try {
             preparedSelectCoordinatesByMarineIdStatement =
@@ -124,7 +150,7 @@ public class DatabaseCollectionManager {
     }
 
     public Chapter getChapterById(long chapterId) throws SQLException {
-        Chapter chapter = null;
+        Chapter chapter;
         PreparedStatement preparedSelectChapterByIdStatement = null;
         try {
             preparedSelectChapterByIdStatement =
@@ -147,10 +173,9 @@ public class DatabaseCollectionManager {
         return chapter;
     }
 
-    public boolean insertMarine(SpaceMarine marine) {
+    public long insertMarine(SpaceMarine marine) {
         // TODO: Реализовать вставку создателя
         // TODO: Если делаем орден уникальным, тут че-то много всего менять
-        // TODO: Пока еще неюзабельно
         PreparedStatement preparedInsertMarineStatement = null;
         PreparedStatement preparedInsertCoordinatesStatement = null;
         PreparedStatement preparedInsertChapterStatement = null;
@@ -159,19 +184,18 @@ public class DatabaseCollectionManager {
             databaseHandler.setSavepoint();
 
             preparedInsertMarineStatement = databaseHandler.getPreparedStatement(INSERT_MARINE, true);
-            preparedInsertCoordinatesStatement = databaseHandler.getPreparedStatement(INSERT_COORDINATES, false);
+            preparedInsertCoordinatesStatement = databaseHandler.getPreparedStatement(INSERT_COORDINATES, true);
             preparedInsertChapterStatement = databaseHandler.getPreparedStatement(INSERT_CHAPTER, true);
 
             preparedInsertChapterStatement.setString(1, marine.getChapter().getName());
             preparedInsertChapterStatement.setLong(2, marine.getChapter().getMarinesCount());
-            // TODO: Опасный момент, может быть и 0
             if (preparedInsertChapterStatement.executeUpdate() == 0) throw new SQLException();
-            // TODO: Не знаю, что делаю
             ResultSet generatedChapterKeys = preparedInsertChapterStatement.getGeneratedKeys();
             long chapterId;
             if (generatedChapterKeys.next()) {
                 chapterId = generatedChapterKeys.getLong(1);
             } else throw new SQLException();
+            App.logger.info("Выполнен запрос INSERT_CHAPTER.");
 
             preparedInsertMarineStatement.setString(1, marine.getName());
             preparedInsertMarineStatement.setTimestamp(2, Timestamp.valueOf(marine.getCreationDate()));
@@ -179,47 +203,65 @@ public class DatabaseCollectionManager {
             preparedInsertMarineStatement.setString(4, marine.getCategory().toString());
             preparedInsertMarineStatement.setString(5, marine.getWeaponType().toString());
             preparedInsertMarineStatement.setString(6, marine.getMeleeWeapon().toString());
-            // TODO: Проверить этот chapterId
             preparedInsertMarineStatement.setLong(7, chapterId);
-            // TODO: Сюда нужно вставить ID создателя
+            // TODO: Тут должна быть вставка пользователя
             preparedInsertMarineStatement.setLong(8, 1L);
-            // TODO: Опасный момент, может быть и 0
             if (preparedInsertMarineStatement.executeUpdate() == 0) throw new SQLException();
             ResultSet generatedMarineKeys = preparedInsertMarineStatement.getGeneratedKeys();
             long spaceMarineId;
             if (generatedMarineKeys.next()) {
                 spaceMarineId = generatedMarineKeys.getLong(1);
             } else throw new SQLException();
+            App.logger.info("Выполнен запрос INSERT_MARINE.");
 
             preparedInsertCoordinatesStatement.setLong(1, spaceMarineId);
             preparedInsertCoordinatesStatement.setDouble(2, marine.getCoordinates().getX());
             preparedInsertCoordinatesStatement.setFloat(3, marine.getCoordinates().getY());
-            // TODO: Опасный момент, может быть и 0
             if (preparedInsertCoordinatesStatement.executeUpdate() == 0) throw new SQLException();
+            App.logger.info("Выполнен запрос INSERT_COORDINATES.");
 
             databaseHandler.commit();
-            App.logger.info("Выполнен INSERT запрос.");
-            return true;
+            return spaceMarineId;
         } catch (SQLException exception) {
-            // TODO: Обработать
-            try {
-                databaseHandler.rollback();
-            } catch (Exception exception2) {
-                // TODO: Обработать
-                exception2.printStackTrace();
-            }
-            Outputer.printerror("Произошла ошибка при обращении к базе данных!");
-            App.logger.error("Произошла ошибка при выполнении INSERT запроса!");
+            App.logger.error("Произошла ошибка при выполнении группы запросов на добавление нового объекта!");
+            databaseHandler.rollback();
         } finally {
             databaseHandler.closePreparedStatement(preparedInsertMarineStatement);
             databaseHandler.closePreparedStatement(preparedInsertCoordinatesStatement);
             databaseHandler.closePreparedStatement(preparedInsertChapterStatement);
-            try {
-                databaseHandler.setNormalMode();
-            } catch (Exception exception) {
-                // TODO: Обработать
-                exception.printStackTrace();
-            }
+            databaseHandler.setNormalMode();
+        }
+        return -1L;
+    }
+
+    public boolean deleteMarineById(long marineId) {
+        // TODO: Орден так удалять нельзя, нужно либо уже делать его уникальным, либо автоудаление, как у координат
+        PreparedStatement preparedDeleteMarineByIdStatement = null;
+        PreparedStatement preparedDeleteChapterByIdStatement = null;
+        try {
+            databaseHandler.setCommitMode();
+            databaseHandler.setSavepoint();
+
+            preparedDeleteMarineByIdStatement = databaseHandler.getPreparedStatement(DELETE_MARINE_BY_ID, false);
+            preparedDeleteChapterByIdStatement = databaseHandler.getPreparedStatement(DELETE_CHAPTER_BY_ID, false);
+
+            preparedDeleteMarineByIdStatement.setLong(1, marineId);
+            preparedDeleteChapterByIdStatement.setLong(1, getChapterIdByMarineId(marineId));
+
+            if (preparedDeleteMarineByIdStatement.executeUpdate() == 0) Outputer.println(1);
+            App.logger.info("Выполнен запрос DELETE_MARINE_BY_ID.");
+            if (preparedDeleteChapterByIdStatement.executeUpdate() == 0) Outputer.println(3);
+            App.logger.info("Выполнен запрос DELETE_CHAPTER_BY_ID.");
+
+            databaseHandler.commit();
+            return true;
+        } catch (SQLException exception) {
+            App.logger.error("Произошла ошибка при выполнении группы запросов на удаление объекта!");
+            databaseHandler.rollback();
+        } finally {
+            databaseHandler.closePreparedStatement(preparedDeleteMarineByIdStatement);
+            databaseHandler.closePreparedStatement(preparedDeleteChapterByIdStatement);
+            databaseHandler.setNormalMode();
         }
         return false;
     }

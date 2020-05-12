@@ -102,28 +102,48 @@ public class DatabaseHandler {
         }
     }
 
-    public void setCommitMode() throws SQLException {
-        if (connection == null) throw new SQLException();
-        connection.setAutoCommit(false);
+    public void setCommitMode() {
+        try {
+            if (connection == null) throw new SQLException();
+            connection.setAutoCommit(false);
+        } catch (SQLException exception) {
+            App.logger.error("Произошла ошибка при установлении режима транзакции базы данных!");
+        }
     }
 
-    public void setNormalMode() throws  SQLException {
-        if (connection == null) throw new SQLException();
-        connection.setAutoCommit(true);
+    public void setNormalMode() {
+        try {
+            if (connection == null) throw new SQLException();
+            connection.setAutoCommit(true);
+        } catch (SQLException exception) {
+            App.logger.error("Произошла ошибка при установлении нормального режима базы данных!");
+        }
     }
 
-    public void commit() throws SQLException {
-        if (connection == null) throw new SQLException();
-        connection.commit();
+    public void commit() {
+        try {
+            if (connection == null) throw new SQLException();
+            connection.commit();
+        } catch (SQLException exception) {
+            App.logger.error("Произошла ошибка при подтверждении нового состояния базы данных!");
+        }
     }
 
-    public void rollback() throws SQLException {
-        if (connection == null) throw new SQLException();
-        connection.rollback();
+    public void rollback() {
+        try {
+            if (connection == null) throw new SQLException();
+            connection.rollback();
+        } catch (SQLException exception) {
+            App.logger.error("Произошла ошибка при возврате исходного состояния базы данных!");
+        }
     }
 
-    public void setSavepoint() throws SQLException {
-        if (connection == null) throw new SQLException();
-        connection.setSavepoint();
+    public void setSavepoint() {
+        try {
+            if (connection == null) throw new SQLException();
+            connection.setSavepoint();
+        } catch (SQLException exception) {
+            App.logger.error("Произошла ошибка при сохранении состояния базы данных!");
+        }
     }
 }

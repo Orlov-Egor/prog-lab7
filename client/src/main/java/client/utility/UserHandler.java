@@ -144,9 +144,6 @@ public class UserHandler {
                 case "clear":
                     if (!commandArgument.isEmpty()) throw new CommandUsageException();
                     break;
-                case "save":
-                    if (!commandArgument.isEmpty()) throw new CommandUsageException();
-                    break;
                 case "execute_script":
                     if (commandArgument.isEmpty()) throw new CommandUsageException("<file_name>");
                     return ProcessingCode.SCRIPT;

@@ -28,15 +28,10 @@ public class InfoCommand extends AbstractCommand {
             LocalDateTime lastInitTime = collectionManager.getLastInitTime();
             String lastInitTimeString = (lastInitTime == null) ? "в данной сессии инициализации еще не происходило" :
                                         lastInitTime.toLocalDate().toString() + " " + lastInitTime.toLocalTime().toString();
-            
-            LocalDateTime lastSaveTime = collectionManager.getLastSaveTime();
-            String lastSaveTimeString = (lastSaveTime == null) ? "в данной сессии сохранения еще не происходило" :
-                                        lastSaveTime.toLocalDate().toString() + " " + lastSaveTime.toLocalTime().toString();
 
             ResponseOutputer.appendln("Сведения о коллекции:");
             ResponseOutputer.appendln(" Тип: " + collectionManager.collectionType());
             ResponseOutputer.appendln(" Количество элементов: " + collectionManager.collectionSize());
-            ResponseOutputer.appendln(" Дата последнего сохранения: " + lastSaveTimeString);
             ResponseOutputer.appendln(" Дата последней инициализации: " + lastInitTimeString);
             return true;
         } catch (WrongAmountOfElementsException exception) {

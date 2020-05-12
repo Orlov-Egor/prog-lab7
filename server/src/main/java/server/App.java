@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
  * @author Sviridov Dmitry and Orlov Egor.
  */
 public class App {
-    public static final String ENV_VARIABLE = "LABA";
     public static Logger logger = LogManager.getLogger("ServerLogger");
 
     private static final int MAX_CLIENTS = 1000;
@@ -49,14 +48,12 @@ public class App {
 
     public static void main(String[] args) {
         if (!initializePort(args)) return;
-        CollectionFileManager collectionFileManager = new CollectionFileManager(ENV_VARIABLE);
-
         // TODO: TEST
         DatabaseHandler databaseHandler = new DatabaseHandler("jdbc:postgresql://localhost:5432/studs", "s284724", "sgf353");
         DatabaseUserManager databaseUserManager = new DatabaseUserManager(databaseHandler);
         DatabaseCollectionManager databaseCollectionManager = new DatabaseCollectionManager(databaseHandler, databaseUserManager);
 
-        CollectionManager collectionManager = new CollectionManager(collectionFileManager, databaseCollectionManager);
+        CollectionManager collectionManager = new CollectionManager(databaseCollectionManager);
         CommandManager commandManager = new CommandManager(
                 new HelpCommand(),
                 new InfoCommand(collectionManager),
@@ -65,7 +62,6 @@ public class App {
                 new UpdateCommand(collectionManager),
                 new RemoveByIdCommand(collectionManager),
                 new ClearCommand(collectionManager),
-                new SaveCommand(collectionManager),
                 new ExitCommand(),
                 new ExecuteScriptCommand(),
                 new AddIfMinCommand(collectionManager),

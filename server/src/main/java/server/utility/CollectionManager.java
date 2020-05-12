@@ -14,14 +14,9 @@ import java.util.NavigableSet;
 public class CollectionManager {
     private NavigableSet<SpaceMarine> marinesCollection;
     private LocalDateTime lastInitTime;
-    private LocalDateTime lastSaveTime;
-    private CollectionFileManager collectionFileManager;
     private DatabaseCollectionManager databaseCollectionManager;
 
-    public CollectionManager(CollectionFileManager collectionFileManager, DatabaseCollectionManager databaseCollectionManager) {
-        this.lastInitTime = null;
-        this.lastSaveTime = null;
-        this.collectionFileManager = collectionFileManager;
+    public CollectionManager(DatabaseCollectionManager databaseCollectionManager) {
         this.databaseCollectionManager = databaseCollectionManager;
         
         loadCollection();
@@ -32,13 +27,6 @@ public class CollectionManager {
      */
     public LocalDateTime getLastInitTime() {
         return lastInitTime;
-    }
-
-    /**
-     * @return Last save time or null if there wasn't saving.
-     */
-    public LocalDateTime getLastSaveTime() {
-        return lastSaveTime;
     }
 
     /**
@@ -154,14 +142,6 @@ public class CollectionManager {
     public Long generateNextId() {
         if (marinesCollection.isEmpty()) return 1L;
         return marinesCollection.last().getId() + 1;
-    }
-
-    /**
-     * Saves the collection to file.
-     */
-    public void saveCollection() {
-            collectionFileManager.writeCollection(marinesCollection);
-            lastSaveTime = LocalDateTime.now();
     }
 
     /**

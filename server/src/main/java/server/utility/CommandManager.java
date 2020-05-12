@@ -23,7 +23,6 @@ public class CommandManager {
     private Command updateCommand;
     private Command removeByIdCommand;
     private Command clearCommand;
-    private Command saveCommand;
     private Command exitCommand;
     private Command executeScriptCommand;
     private Command addIfMinCommand;
@@ -38,7 +37,7 @@ public class CommandManager {
     private ReadWriteLock collectionLocker = new ReentrantReadWriteLock();
 
     public CommandManager(Command helpCommand, Command infoCommand, Command showCommand, Command addCommand, Command updateCommand,
-                          Command removeByIdCommand, Command clearCommand, Command saveCommand, Command exitCommand, Command executeScriptCommand,
+                          Command removeByIdCommand, Command clearCommand, Command exitCommand, Command executeScriptCommand,
                           Command addIfMinCommand, Command removeGreaterCommand, Command historyCommand, Command sumOfHealthCommand,
                           Command maxByMeleeWeaponCommand, Command filterByWeaponTypeCommand, Command serverExitCommand) {
         this.helpCommand = helpCommand;
@@ -48,7 +47,6 @@ public class CommandManager {
         this.updateCommand = updateCommand;
         this.removeByIdCommand = removeByIdCommand;
         this.clearCommand = clearCommand;
-        this.saveCommand = saveCommand;
         this.exitCommand = exitCommand;
         this.executeScriptCommand = executeScriptCommand;
         this.addIfMinCommand = addIfMinCommand;
@@ -66,7 +64,6 @@ public class CommandManager {
         commands.add(updateCommand);
         commands.add(removeByIdCommand);
         commands.add(clearCommand);
-        commands.add(saveCommand);
         commands.add(exitCommand);
         commands.add(executeScriptCommand);
         commands.add(addIfMinCommand);
@@ -201,17 +198,6 @@ public class CommandManager {
         } finally {
             collectionLocker.writeLock().unlock();
         }
-    }
-
-    /**
-     * Executes needed command.
-     * @param stringArgument Its string argument.
-     * @param objectArgument Its object argument.
-     * @return Command exit status.
-     */
-    public boolean save(String stringArgument, Object objectArgument) {
-        // TODO: Неясно, что тут делать с синхронизацией до появления БД
-        return saveCommand.execute(stringArgument, objectArgument);
     }
 
     /**
