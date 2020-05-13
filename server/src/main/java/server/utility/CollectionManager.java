@@ -10,6 +10,7 @@ import server.App;
 
 import java.time.LocalDateTime;
 import java.util.NavigableSet;
+import java.util.TreeSet;
 
 /**
  * Operates the collection itself.
@@ -148,6 +149,7 @@ public class CollectionManager {
             Outputer.println("Коллекция загружена.");
             App.logger.info("Коллекция загружена.");
         } catch (DatabaseHandlingException exception) {
+            marinesCollection = new TreeSet<>();
             Outputer.printerror("Коллекция не может быть загружена!");
             App.logger.error("Коллекция не может быть загружена!");
         }
