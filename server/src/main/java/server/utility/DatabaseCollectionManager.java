@@ -32,6 +32,21 @@ public class DatabaseCollectionManager {
             "?::weapon, ?::melee_weapon, ?, ?)";
     private final String DELETE_MARINE_BY_ID = "DELETE FROM " + DatabaseHandler.MARINE_TABLE +
             " WHERE " + DatabaseHandler.MARINE_TABLE_ID_COLUMN + " = ?";
+    private final String UPDATE_MARINE_NAME_BY_ID = "UPDATE " + DatabaseHandler.MARINE_TABLE + " SET " +
+            DatabaseHandler.MARINE_TABLE_NAME_COLUMN + " = ?" + " WHERE " +
+            DatabaseHandler.MARINE_TABLE_ID_COLUMN + " = ?";
+    private final String UPDATE_MARINE_HEALTH_BY_ID = "UPDATE " + DatabaseHandler.MARINE_TABLE + " SET " +
+            DatabaseHandler.MARINE_TABLE_HEALTH_COLUMN + " = ?" + " WHERE " +
+            DatabaseHandler.MARINE_TABLE_ID_COLUMN + " = ?";
+    private final String UPDATE_MARINE_CATEGORY_BY_ID = "UPDATE " + DatabaseHandler.MARINE_TABLE + " SET " +
+            DatabaseHandler.MARINE_TABLE_CATEGORY_COLUMN + " = ?::astartes_category" + " WHERE " +
+            DatabaseHandler.MARINE_TABLE_ID_COLUMN + " = ?";
+    private final String UPDATE_MARINE_WEAPON_TYPE_BY_ID = "UPDATE " + DatabaseHandler.MARINE_TABLE + " SET " +
+            DatabaseHandler.MARINE_TABLE_WEAPON_TYPE_COLUMN + " = ?::weapon" + " WHERE " +
+            DatabaseHandler.MARINE_TABLE_ID_COLUMN + " = ?";
+    private final String UPDATE_MARINE_MELEE_WEAPON_BY_ID = "UPDATE " + DatabaseHandler.MARINE_TABLE + " SET " +
+            DatabaseHandler.MARINE_TABLE_MELEE_WEAPON_COLUMN + " = ?::melee_weapon" + " WHERE " +
+            DatabaseHandler.MARINE_TABLE_ID_COLUMN + " = ?";
     // COORDINATES_TABLE
     private final String SELECT_ALL_COORDINATES = "SELECT * FROM " + DatabaseHandler.COORDINATES_TABLE;
     private final String SELECT_COORDINATES_BY_MARINE_ID = SELECT_ALL_COORDINATES +
@@ -41,8 +56,10 @@ public class DatabaseCollectionManager {
             DatabaseHandler.COORDINATES_TABLE_SPACE_MARINE_ID_COLUMN + ", " +
             DatabaseHandler.COORDINATES_TABLE_X_COLUMN + ", " +
             DatabaseHandler.COORDINATES_TABLE_Y_COLUMN + ") VALUES (?, ?, ?)";
-    private final String DELETE_COORDINATES_BY_MARINE_ID = "DELETE FROM " + DatabaseHandler.COORDINATES_TABLE +
-            " WHERE " + DatabaseHandler.COORDINATES_TABLE_SPACE_MARINE_ID_COLUMN + " = ?";
+    private final String UPDATE_COORDINATES_BY_MARINE_ID = "UPDATE " + DatabaseHandler.COORDINATES_TABLE + " SET " +
+            DatabaseHandler.COORDINATES_TABLE_X_COLUMN + " = ?, " +
+            DatabaseHandler.COORDINATES_TABLE_Y_COLUMN + " = ?" + " WHERE " +
+            DatabaseHandler.COORDINATES_TABLE_SPACE_MARINE_ID_COLUMN + " = ?";
     // CHAPTER_TABLE
     private final String SELECT_ALL_CHAPTER = "SELECT * FROM " + DatabaseHandler.CHAPTER_TABLE;
     private final String SELECT_CHAPTER_BY_ID = SELECT_ALL_CHAPTER +
@@ -51,9 +68,12 @@ public class DatabaseCollectionManager {
             DatabaseHandler.CHAPTER_TABLE + " (" +
             DatabaseHandler.CHAPTER_TABLE_NAME_COLUMN + ", " +
             DatabaseHandler.CHAPTER_TABLE_MARINES_COUNT_COLUMN + ") VALUES (?, ?)";
+    private final String UPDATE_CHAPTER_BY_ID = "UPDATE " + DatabaseHandler.CHAPTER_TABLE + " SET " +
+            DatabaseHandler.CHAPTER_TABLE_NAME_COLUMN + " = ?, " +
+            DatabaseHandler.CHAPTER_TABLE_MARINES_COUNT_COLUMN + " = ?" + " WHERE " +
+            DatabaseHandler.CHAPTER_TABLE_ID_COLUMN + " = ?";
     private final String DELETE_CHAPTER_BY_ID = "DELETE FROM " + DatabaseHandler.CHAPTER_TABLE +
             " WHERE " + DatabaseHandler.CHAPTER_TABLE_ID_COLUMN + " = ?";
-
     private DatabaseHandler databaseHandler;
     private DatabaseUserManager databaseUserManager;
 
@@ -246,6 +266,96 @@ public class DatabaseCollectionManager {
             databaseHandler.closePreparedStatement(preparedInsertMarineStatement);
             databaseHandler.closePreparedStatement(preparedInsertCoordinatesStatement);
             databaseHandler.closePreparedStatement(preparedInsertChapterStatement);
+            databaseHandler.setNormalMode();
+        }
+    }
+
+    public void updateMarineById(long marineId, MarineRaw marineRaw) throws DatabaseHandlingException {
+        // TODO: Если делаем орден уникальным, тут че-то много всего менять
+        PreparedStatement preparedUpdateMarineNameByIdStatement = null;
+        PreparedStatement preparedUpdateMarineHealthByIdStatement = null;
+        PreparedStatement preparedUpdateMarineCategoryByIdStatement = null;
+        PreparedStatement preparedUpdateMarineWeaponTypeByIdStatement = null;
+        PreparedStatement preparedUpdateMarineMeleeWeaponByIdStatement = null;
+        PreparedStatement preparedUpdateCoordinatesByMarineIdStatement = null;
+        PreparedStatement preparedUpdateChapterByIdStatement = null;
+        try {
+            databaseHandler.setCommitMode();
+            databaseHandler.setSavepoint();
+
+            preparedUpdateMarineNameByIdStatement = databaseHandler.getPreparedStatement(UPDATE_MARINE_NAME_BY_ID, false);
+            preparedUpdateMarineHealthByIdStatement = databaseHandler.getPreparedStatement(UPDATE_MARINE_HEALTH_BY_ID, false);
+            preparedUpdateMarineCategoryByIdStatement = databaseHandler.getPreparedStatement(UPDATE_MARINE_CATEGORY_BY_ID, false);
+            preparedUpdateMarineWeaponTypeByIdStatement = databaseHandler.getPreparedStatement(UPDATE_MARINE_WEAPON_TYPE_BY_ID, false);
+            preparedUpdateMarineMeleeWeaponByIdStatement = databaseHandler.getPreparedStatement(UPDATE_MARINE_MELEE_WEAPON_BY_ID, false);
+            preparedUpdateCoordinatesByMarineIdStatement = databaseHandler.getPreparedStatement(UPDATE_COORDINATES_BY_MARINE_ID, false);
+            preparedUpdateChapterByIdStatement = databaseHandler.getPreparedStatement(UPDATE_CHAPTER_BY_ID, false);
+
+            if (marineRaw.getName() != null)
+            {
+                preparedUpdateMarineNameByIdStatement.setString(1, marineRaw.getName());
+                preparedUpdateMarineNameByIdStatement.setLong(2, marineId);
+                if (preparedUpdateMarineNameByIdStatement.executeUpdate() == 0) throw new SQLException();
+                App.logger.info("Выполнен запрос UPDATE_MARINE_NAME_BY_ID.");
+            }
+            if (marineRaw.getCoordinates() != null)
+            {
+                preparedUpdateCoordinatesByMarineIdStatement.setDouble(1, marineRaw.getCoordinates().getX());
+                preparedUpdateCoordinatesByMarineIdStatement.setFloat(2, marineRaw.getCoordinates().getY());
+                preparedUpdateCoordinatesByMarineIdStatement.setLong(3, marineId);
+                if (preparedUpdateCoordinatesByMarineIdStatement.executeUpdate() == 0) throw new SQLException();
+                App.logger.info("Выполнен запрос UPDATE_COORDINATES_BY_MARINE_ID.");
+            }
+            if (marineRaw.getHealth() != -1)
+            {
+                preparedUpdateMarineHealthByIdStatement.setDouble(1, marineRaw.getHealth());
+                preparedUpdateMarineHealthByIdStatement.setLong(2, marineId);
+                if (preparedUpdateMarineHealthByIdStatement.executeUpdate() == 0) throw new SQLException();
+                App.logger.info("Выполнен запрос UPDATE_MARINE_HEALTH_BY_ID.");
+            }
+            if (marineRaw.getCategory() != null)
+            {
+                preparedUpdateMarineCategoryByIdStatement.setString(1, marineRaw.getCategory().toString());
+                preparedUpdateMarineCategoryByIdStatement.setLong(2, marineId);
+                if (preparedUpdateMarineCategoryByIdStatement.executeUpdate() == 0) throw new SQLException();
+                App.logger.info("Выполнен запрос UPDATE_MARINE_CATEGORY_BY_ID.");
+            }
+            if (marineRaw.getWeaponType() != null)
+            {
+                preparedUpdateMarineWeaponTypeByIdStatement.setString(1, marineRaw.getWeaponType().toString());
+                preparedUpdateMarineWeaponTypeByIdStatement.setLong(2, marineId);
+                if (preparedUpdateMarineWeaponTypeByIdStatement.executeUpdate() == 0) throw new SQLException();
+                App.logger.info("Выполнен запрос UPDATE_MARINE_WEAPON_TYPE_BY_ID.");
+            }
+            if (marineRaw.getMeleeWeapon() != null)
+            {
+                preparedUpdateMarineMeleeWeaponByIdStatement.setString(1, marineRaw.getMeleeWeapon().toString());
+                preparedUpdateMarineMeleeWeaponByIdStatement.setLong(2, marineId);
+                if (preparedUpdateMarineMeleeWeaponByIdStatement.executeUpdate() == 0) throw new SQLException();
+                App.logger.info("Выполнен запрос UPDATE_MARINE_MELEE_WEAPON_BY_ID.");
+            }
+            if (marineRaw.getChapter() != null)
+            {
+                preparedUpdateChapterByIdStatement.setString(1, marineRaw.getChapter().getName());
+                preparedUpdateChapterByIdStatement.setLong(2, marineRaw.getChapter().getMarinesCount());
+                preparedUpdateChapterByIdStatement.setLong(3, getChapterIdByMarineId(marineId));
+                if (preparedUpdateChapterByIdStatement.executeUpdate() == 0) throw new SQLException();
+                App.logger.info("Выполнен запрос UPDATE_CHAPTER_BY_ID.");
+            }
+
+            databaseHandler.commit();
+        } catch (SQLException exception) {
+            App.logger.error("Произошла ошибка при выполнении группы запросов на обновление объекта!");
+            databaseHandler.rollback();
+            throw new DatabaseHandlingException();
+        } finally {
+            databaseHandler.closePreparedStatement(preparedUpdateMarineNameByIdStatement);
+            databaseHandler.closePreparedStatement(preparedUpdateMarineHealthByIdStatement);
+            databaseHandler.closePreparedStatement(preparedUpdateMarineCategoryByIdStatement);
+            databaseHandler.closePreparedStatement(preparedUpdateMarineWeaponTypeByIdStatement);
+            databaseHandler.closePreparedStatement(preparedUpdateMarineMeleeWeaponByIdStatement);
+            databaseHandler.closePreparedStatement(preparedUpdateCoordinatesByMarineIdStatement);
+            databaseHandler.closePreparedStatement(preparedUpdateChapterByIdStatement);
             databaseHandler.setNormalMode();
         }
     }

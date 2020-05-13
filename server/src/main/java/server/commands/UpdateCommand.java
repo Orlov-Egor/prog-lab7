@@ -2,10 +2,12 @@ package server.commands;
 
 import common.data.*;
 import common.exceptions.CollectionIsEmptyException;
+import common.exceptions.DatabaseHandlingException;
 import common.exceptions.MarineNotFoundException;
 import common.exceptions.WrongAmountOfElementsException;
 import common.interaction.MarineRaw;
 import server.utility.CollectionManager;
+import server.utility.DatabaseCollectionManager;
 import server.utility.ResponseOutputer;
 
 import java.time.LocalDateTime;
@@ -15,10 +17,12 @@ import java.time.LocalDateTime;
  */
 public class UpdateCommand extends AbstractCommand {
     private CollectionManager collectionManager;
+    private DatabaseCollectionManager databaseCollectionManager;
 
-    public UpdateCommand(CollectionManager collectionManager) {
+    public UpdateCommand(CollectionManager collectionManager, DatabaseCollectionManager databaseCollectionManager) {
         super("update", "<ID> {element}", "обновить значение элемента коллекции по ID");
         this.collectionManager = collectionManager;
+        this.databaseCollectionManager = databaseCollectionManager;
     }
 
     /**
@@ -36,8 +40,10 @@ public class UpdateCommand extends AbstractCommand {
             if (id <= 0) throw new NumberFormatException();
             SpaceMarine oldMarine = collectionManager.getById(id);
             if (oldMarine == null) throw new MarineNotFoundException();
-
             MarineRaw marineRaw = (MarineRaw) objectArgument;
+
+            databaseCollectionManager.updateMarineById(id, marineRaw);
+
             String name = marineRaw.getName() == null ? oldMarine.getName() : marineRaw.getName();
             Coordinates coordinates = marineRaw.getCoordinates() == null ? oldMarine.getCoordinates() : marineRaw.getCoordinates();
             LocalDateTime creationDate = oldMarine.getCreationDate();
@@ -72,6 +78,8 @@ public class UpdateCommand extends AbstractCommand {
             ResponseOutputer.appenderror("Солдата с таким ID в коллекции нет!");
         } catch (ClassCastException exception) {
             ResponseOutputer.appenderror("Переданный клиентом объект неверен!");
+        } catch (DatabaseHandlingException exception) {
+            ResponseOutputer.appenderror("Произошла ошибка при обращении к базе данных!");
         }
         return false;
     }

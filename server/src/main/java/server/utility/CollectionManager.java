@@ -112,8 +112,12 @@ public class CollectionManager {
      * Remove marines greater than the selected one.
      * @param marineToCompare A marine to compare with.
      */
-    public void removeGreater(SpaceMarine marineToCompare) {
-        marinesCollection.removeIf(marine -> marine.compareTo(marineToCompare) > 0);
+    public NavigableSet<SpaceMarine> getGreater(SpaceMarine marineToCompare) {
+        return marinesCollection.stream().filter(marine -> marine.compareTo(marineToCompare) > 0).collect(
+                TreeSet::new,
+                TreeSet::add,
+                TreeSet::addAll
+        );
     }
 
     /**

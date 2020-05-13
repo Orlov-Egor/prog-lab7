@@ -50,8 +50,10 @@ public class RemoveGreaterCommand extends AbstractCommand {
             );
             SpaceMarine marineFromCollection = collectionManager.getByValue(marineToFind);
             if (marineFromCollection == null) throw new MarineNotFoundException();
-            databaseCollectionManager.deleteMarineById(marineFromCollection.getId());
-            collectionManager.removeGreater(marineFromCollection);
+            for (SpaceMarine marine : collectionManager.getGreater(marineFromCollection)) {
+                databaseCollectionManager.deleteMarineById(marine.getId());
+                collectionManager.removeFromCollection(marine);
+            }
             ResponseOutputer.appendln("Солдаты успешно удалены!");
             return true;
         } catch (WrongAmountOfElementsException exception) {

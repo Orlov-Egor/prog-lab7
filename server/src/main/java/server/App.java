@@ -56,7 +56,7 @@ public class App {
                 new InfoCommand(collectionManager),
                 new ShowCommand(collectionManager),
                 new AddCommand(collectionManager, databaseCollectionManager),
-                new UpdateCommand(collectionManager),
+                new UpdateCommand(collectionManager, databaseCollectionManager),
                 new RemoveByIdCommand(collectionManager, databaseCollectionManager),
                 new ClearCommand(collectionManager, databaseCollectionManager),
                 new ExitCommand(),
