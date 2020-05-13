@@ -4,6 +4,9 @@ import common.data.MeleeWeapon;
 import common.data.SpaceMarine;
 import common.data.Weapon;
 import common.exceptions.CollectionIsEmptyException;
+import common.exceptions.DatabaseHandlingException;
+import common.utility.Outputer;
+import server.App;
 
 import java.time.LocalDateTime;
 import java.util.NavigableSet;
@@ -136,19 +139,17 @@ public class CollectionManager {
     }
 
     /**
-     * Generates next ID. It will be (the bigger one + 1).
-     * @return Next ID.
-     */
-    public Long generateNextId() {
-        if (marinesCollection.isEmpty()) return 1L;
-        return marinesCollection.last().getId() + 1;
-    }
-
-    /**
      * Loads the collection from file.
      */
     private void loadCollection() {
-        marinesCollection = databaseCollectionManager.getCollection();
-        lastInitTime = LocalDateTime.now();
+        try {
+            marinesCollection = databaseCollectionManager.getCollection();
+            lastInitTime = LocalDateTime.now();
+            Outputer.println("Коллекция загружена.");
+            App.logger.info("Коллекция загружена.");
+        } catch (DatabaseHandlingException exception) {
+            Outputer.printerror("Коллекция не может быть загружена!");
+            App.logger.error("Коллекция не может быть загружена!");
+        }
     }
 }

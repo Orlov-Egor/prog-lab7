@@ -1,7 +1,9 @@
 package server.commands;
 
+import common.exceptions.DatabaseHandlingException;
 import common.exceptions.WrongAmountOfElementsException;
 import server.utility.CollectionManager;
+import server.utility.DatabaseCollectionManager;
 import server.utility.ResponseOutputer;
 
 /**
@@ -9,10 +11,12 @@ import server.utility.ResponseOutputer;
  */
 public class ClearCommand extends AbstractCommand {
     private CollectionManager collectionManager;
+    private DatabaseCollectionManager databaseCollectionManager;
 
-    public ClearCommand(CollectionManager collectionManager) {
+    public ClearCommand(CollectionManager collectionManager, DatabaseCollectionManager databaseCollectionManager) {
         super("clear", "", "очистить коллекцию");
         this.collectionManager = collectionManager;
+        this.databaseCollectionManager = databaseCollectionManager;
     }
 
     /**
@@ -23,11 +27,14 @@ public class ClearCommand extends AbstractCommand {
     public boolean execute(String stringArgument, Object objectArgument) {
         try {
             if (!stringArgument.isEmpty() || objectArgument != null) throw new WrongAmountOfElementsException();
+            databaseCollectionManager.clearCollection();
             collectionManager.clearCollection();
             ResponseOutputer.appendln("Коллекция очищена!");
             return true;
         } catch (WrongAmountOfElementsException exception) {
             ResponseOutputer.appendln("Использование: '" + getName() + " " + getUsage() + "'");
+        } catch (DatabaseHandlingException exception) {
+            ResponseOutputer.appenderror("Произошла ошибка при обращении к базе данных!");
         }
         return false;
     }

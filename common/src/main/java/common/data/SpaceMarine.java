@@ -133,7 +133,7 @@ public class SpaceMarine implements Comparable<SpaceMarine> {
     @Override
     public int hashCode() {
         return name.hashCode() + coordinates.hashCode() + (int) health + category.hashCode() + weaponType.hashCode() +
-               meleeWeapon.hashCode() + chapter.hashCode() + owner.hashCode();
+               meleeWeapon.hashCode() + chapter.hashCode();
     }
 
     @Override
@@ -144,7 +144,7 @@ public class SpaceMarine implements Comparable<SpaceMarine> {
             return name.equals(marineObj.getName()) && coordinates.equals(marineObj.getCoordinates()) &&
                    (health == marineObj.getHealth()) && (category == marineObj.getCategory()) &&
                    (weaponType == marineObj.getWeaponType()) && (meleeWeapon == marineObj.getMeleeWeapon()) &&
-                   chapter.equals(marineObj.getChapter()) && (owner.equals(marineObj.getOwner()));
+                   chapter.equals(marineObj.getChapter());
         }
         return false;
     }

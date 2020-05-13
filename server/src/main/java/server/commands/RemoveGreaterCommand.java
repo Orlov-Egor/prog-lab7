@@ -2,10 +2,12 @@ package server.commands;
 
 import common.data.SpaceMarine;
 import common.exceptions.CollectionIsEmptyException;
+import common.exceptions.DatabaseHandlingException;
 import common.exceptions.MarineNotFoundException;
 import common.exceptions.WrongAmountOfElementsException;
 import common.interaction.MarineRaw;
 import server.utility.CollectionManager;
+import server.utility.DatabaseCollectionManager;
 import server.utility.ResponseOutputer;
 
 import java.time.LocalDateTime;
@@ -15,10 +17,12 @@ import java.time.LocalDateTime;
  */
 public class RemoveGreaterCommand extends AbstractCommand {
     private CollectionManager collectionManager;
+    private DatabaseCollectionManager databaseCollectionManager;
 
-    public RemoveGreaterCommand(CollectionManager collectionManager) {
+    public RemoveGreaterCommand(CollectionManager collectionManager, DatabaseCollectionManager databaseCollectionManager) {
         super("remove_greater", "{element}", "удалить из коллекции все элементы, превышающие заданный");
         this.collectionManager = collectionManager;
+        this.databaseCollectionManager = databaseCollectionManager;
     }
 
     /**
@@ -33,7 +37,7 @@ public class RemoveGreaterCommand extends AbstractCommand {
             if (collectionManager.collectionSize() == 0) throw new CollectionIsEmptyException();
             MarineRaw marineRaw = (MarineRaw) objectArgument;
             SpaceMarine marineToFind = new SpaceMarine(
-                    collectionManager.generateNextId(),
+                    0L,
                     marineRaw.getName(),
                     marineRaw.getCoordinates(),
                     LocalDateTime.now(),
@@ -46,6 +50,7 @@ public class RemoveGreaterCommand extends AbstractCommand {
             );
             SpaceMarine marineFromCollection = collectionManager.getByValue(marineToFind);
             if (marineFromCollection == null) throw new MarineNotFoundException();
+            databaseCollectionManager.deleteMarineById(marineFromCollection.getId());
             collectionManager.removeGreater(marineFromCollection);
             ResponseOutputer.appendln("Солдаты успешно удалены!");
             return true;
@@ -57,6 +62,8 @@ public class RemoveGreaterCommand extends AbstractCommand {
             ResponseOutputer.appenderror("Солдата с такими характеристиками в коллекции нет!");
         } catch (ClassCastException exception) {
             ResponseOutputer.appenderror("Переданный клиентом объект неверен!");
+        } catch (DatabaseHandlingException exception) {
+            ResponseOutputer.appenderror("Произошла ошибка при обращении к базе данных!");
         }
         return false;
     }
