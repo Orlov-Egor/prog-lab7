@@ -31,5 +31,5 @@ CREATE TABLE coordinates (
 	space_marine_id bigint UNIQUE NOT NULL REFERENCES space_marine(id) ON DELETE CASCADE,
 	x double precision NOT NULL,
 	y real NOT NULL CHECK (y <= 262),
-	UNIQUE (x, y)
+	UNIQUE (x, y) - УДАЛЕНО
 );
