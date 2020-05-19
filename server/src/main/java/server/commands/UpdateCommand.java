@@ -1,10 +1,7 @@
 package server.commands;
 
 import common.data.*;
-import common.exceptions.CollectionIsEmptyException;
-import common.exceptions.DatabaseHandlingException;
-import common.exceptions.MarineNotFoundException;
-import common.exceptions.WrongAmountOfElementsException;
+import common.exceptions.*;
 import common.interaction.MarineRaw;
 import common.interaction.User;
 import server.utility.CollectionManager;
@@ -41,6 +38,7 @@ public class UpdateCommand extends AbstractCommand {
             if (id <= 0) throw new NumberFormatException();
             SpaceMarine oldMarine = collectionManager.getById(id);
             if (oldMarine == null) throw new MarineNotFoundException();
+            if (!oldMarine.getOwner().equals(user.getUsername())) throw new PermissionDeniedException();
             MarineRaw marineRaw = (MarineRaw) objectArgument;
 
             databaseCollectionManager.updateMarineById(id, marineRaw);
@@ -81,6 +79,9 @@ public class UpdateCommand extends AbstractCommand {
             ResponseOutputer.appenderror("Переданный клиентом объект неверен!");
         } catch (DatabaseHandlingException exception) {
             ResponseOutputer.appenderror("Произошла ошибка при обращении к базе данных!");
+        } catch (PermissionDeniedException exception) {
+            ResponseOutputer.appenderror("Недостаточно прав для выполнения данной команды!");
+            ResponseOutputer.appendln("Принадлежащие другим пользователям объекты доступны только для чтения.");
         }
         return false;
     }

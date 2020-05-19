@@ -1,6 +1,8 @@
 package server.commands;
 
+import common.data.SpaceMarine;
 import common.exceptions.DatabaseHandlingException;
+import common.exceptions.PermissionDeniedException;
 import common.exceptions.WrongAmountOfElementsException;
 import common.interaction.User;
 import server.utility.CollectionManager;
@@ -29,6 +31,9 @@ public class ClearCommand extends AbstractCommand {
         // TODO: Запрещать удалять, если юзер не тот
         try {
             if (!stringArgument.isEmpty() || objectArgument != null) throw new WrongAmountOfElementsException();
+            for (SpaceMarine marine : collectionManager.getColletion()) {
+                if (!marine.getOwner().equals(user.getUsername())) throw new PermissionDeniedException();
+            }
             databaseCollectionManager.clearCollection();
             collectionManager.clearCollection();
             ResponseOutputer.appendln("Коллекция очищена!");
@@ -37,6 +42,9 @@ public class ClearCommand extends AbstractCommand {
             ResponseOutputer.appendln("Использование: '" + getName() + " " + getUsage() + "'");
         } catch (DatabaseHandlingException exception) {
             ResponseOutputer.appenderror("Произошла ошибка при обращении к базе данных!");
+        } catch (PermissionDeniedException exception) {
+            ResponseOutputer.appenderror("Недостаточно прав для выполнения данной команды!");
+            ResponseOutputer.appendln("Принадлежащие другим пользователям объекты доступны только для чтения.");
         }
         return false;
     }

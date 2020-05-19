@@ -27,6 +27,13 @@ public class CollectionManager {
     }
 
     /**
+     * @return Marines collection.
+     */
+    public NavigableSet<SpaceMarine> getColletion() {
+        return marinesCollection;
+    }
+
+    /**
      * @return Last initialization time or null if there wasn't initialization.
      */
     public LocalDateTime getLastInitTime() {

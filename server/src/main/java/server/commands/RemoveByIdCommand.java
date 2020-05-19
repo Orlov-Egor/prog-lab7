@@ -1,10 +1,7 @@
 package server.commands;
 
 import common.data.SpaceMarine;
-import common.exceptions.CollectionIsEmptyException;
-import common.exceptions.DatabaseHandlingException;
-import common.exceptions.MarineNotFoundException;
-import common.exceptions.WrongAmountOfElementsException;
+import common.exceptions.*;
 import common.interaction.User;
 import server.utility.CollectionManager;
 import server.utility.DatabaseCollectionManager;
@@ -29,13 +26,13 @@ public class RemoveByIdCommand extends AbstractCommand {
      */
     @Override
     public boolean execute(String stringArgument, Object objectArgument, User user) {
-        // TODO: Запрещать удалять, если юзер не тот
         try {
             if (stringArgument.isEmpty() || objectArgument != null) throw new WrongAmountOfElementsException();
             if (collectionManager.collectionSize() == 0) throw new CollectionIsEmptyException();
             long id = Long.parseLong(stringArgument);
             SpaceMarine marineToRemove = collectionManager.getById(id);
             if (marineToRemove == null) throw new MarineNotFoundException();
+            if (!marineToRemove.getOwner().equals(user.getUsername())) throw new PermissionDeniedException();
             databaseCollectionManager.deleteMarineById(id);
             collectionManager.removeFromCollection(marineToRemove);
             ResponseOutputer.appendln("Солдат успешно удален!");
@@ -50,6 +47,9 @@ public class RemoveByIdCommand extends AbstractCommand {
             ResponseOutputer.appenderror("Солдата с таким ID в коллекции нет!");
         } catch (DatabaseHandlingException exception) {
             ResponseOutputer.appenderror("Произошла ошибка при обращении к базе данных!");
+        } catch (PermissionDeniedException exception) {
+            ResponseOutputer.appenderror("Недостаточно прав для выполнения данной команды!");
+            ResponseOutputer.appendln("Принадлежащие другим пользователям объекты доступны только для чтения.");
         }
         return false;
     }

@@ -1,10 +1,7 @@
 package server.commands;
 
 import common.data.SpaceMarine;
-import common.exceptions.CollectionIsEmptyException;
-import common.exceptions.DatabaseHandlingException;
-import common.exceptions.MarineNotFoundException;
-import common.exceptions.WrongAmountOfElementsException;
+import common.exceptions.*;
 import common.interaction.MarineRaw;
 import common.interaction.User;
 import server.utility.CollectionManager;
@@ -32,7 +29,6 @@ public class RemoveGreaterCommand extends AbstractCommand {
      */
     @Override
     public boolean execute(String stringArgument, Object objectArgument, User user) {
-        // TODO: Запрещать удалять, если юзер не тот
         try {
             if (!stringArgument.isEmpty() || objectArgument == null) throw new WrongAmountOfElementsException();
             if (collectionManager.collectionSize() == 0) throw new CollectionIsEmptyException();
@@ -52,6 +48,9 @@ public class RemoveGreaterCommand extends AbstractCommand {
             SpaceMarine marineFromCollection = collectionManager.getByValue(marineToFind);
             if (marineFromCollection == null) throw new MarineNotFoundException();
             for (SpaceMarine marine : collectionManager.getGreater(marineFromCollection)) {
+                if (!marine.getOwner().equals(user.getUsername())) throw new PermissionDeniedException();
+            }
+            for (SpaceMarine marine : collectionManager.getGreater(marineFromCollection)) {
                 databaseCollectionManager.deleteMarineById(marine.getId());
                 collectionManager.removeFromCollection(marine);
             }
@@ -67,6 +66,9 @@ public class RemoveGreaterCommand extends AbstractCommand {
             ResponseOutputer.appenderror("Переданный клиентом объект неверен!");
         } catch (DatabaseHandlingException exception) {
             ResponseOutputer.appenderror("Произошла ошибка при обращении к базе данных!");
+        } catch (PermissionDeniedException exception) {
+            ResponseOutputer.appenderror("Недостаточно прав для выполнения данной команды!");
+            ResponseOutputer.appendln("Принадлежащие другим пользователям объекты доступны только для чтения.");
         }
         return false;
     }
