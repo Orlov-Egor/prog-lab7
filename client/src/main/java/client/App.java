@@ -1,5 +1,6 @@
 package client;
 
+import client.utility.AuthHandler;
 import client.utility.UserHandler;
 import common.exceptions.NotInDeclaredLimitsException;
 import common.exceptions.WrongAmountOfElementsException;
@@ -46,8 +47,9 @@ public class App {
     public static void main(String[] args) {
         if (!initializeConnectionAddress(args)) return;
         Scanner userScanner = new Scanner(System.in);
+        AuthHandler authHandler = new AuthHandler(userScanner);
         UserHandler userHandler = new UserHandler(userScanner);
-        Client client = new Client(host, port, RECONNECTION_TIMEOUT, MAX_RECONNECTION_ATTEMPTS, userHandler);
+        Client client = new Client(host, port, RECONNECTION_TIMEOUT, MAX_RECONNECTION_ATTEMPTS, userHandler, authHandler);
         client.run();
         userScanner.close();
     }

@@ -6,6 +6,7 @@ import common.exceptions.DatabaseHandlingException;
 import common.exceptions.MarineNotFoundException;
 import common.exceptions.WrongAmountOfElementsException;
 import common.interaction.MarineRaw;
+import common.interaction.User;
 import server.utility.CollectionManager;
 import server.utility.DatabaseCollectionManager;
 import server.utility.ResponseOutputer;
@@ -30,8 +31,8 @@ public class RemoveGreaterCommand extends AbstractCommand {
      * @return Command exit status.
      */
     @Override
-    public boolean execute(String stringArgument, Object objectArgument) {
-        // TODO: При создании объекта нужен пользователь
+    public boolean execute(String stringArgument, Object objectArgument, User user) {
+        // TODO: Запрещать удалять, если юзер не тот
         try {
             if (!stringArgument.isEmpty() || objectArgument == null) throw new WrongAmountOfElementsException();
             if (collectionManager.collectionSize() == 0) throw new CollectionIsEmptyException();
@@ -46,7 +47,7 @@ public class RemoveGreaterCommand extends AbstractCommand {
                     marineRaw.getWeaponType(),
                     marineRaw.getMeleeWeapon(),
                     marineRaw.getChapter(),
-                    "slamach"
+                    user.getUsername()
             );
             SpaceMarine marineFromCollection = collectionManager.getByValue(marineToFind);
             if (marineFromCollection == null) throw new MarineNotFoundException();

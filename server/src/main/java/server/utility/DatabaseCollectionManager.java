@@ -3,6 +3,7 @@ package server.utility;
 import common.data.*;
 import common.exceptions.DatabaseHandlingException;
 import common.interaction.MarineRaw;
+import common.interaction.User;
 import common.utility.Outputer;
 import server.App;
 
@@ -130,10 +131,10 @@ public class DatabaseCollectionManager {
             preparedSelectMarineByIdStatement = databaseHandler.getPreparedStatement(SELECT_MARINE_BY_ID, false);
             preparedSelectMarineByIdStatement.setLong(1, marineId);
             ResultSet resultSet = preparedSelectMarineByIdStatement.executeQuery();
+            App.logger.info("Выполнен запрос SELECT_MARINE_BY_ID.");
             if (resultSet.next()) {
                 chapterId = resultSet.getLong(DatabaseHandler.MARINE_TABLE_CHAPTER_ID_COLUMN);
             } else throw new SQLException();
-            App.logger.info("Выполнен запрос SELECT_MARINE_BY_ID.");
         } catch (SQLException exception) {
             App.logger.error("Произошла ошибка при выполнении запроса SELECT_MARINE_BY_ID!");
             throw new SQLException(exception);
@@ -152,13 +153,13 @@ public class DatabaseCollectionManager {
                     databaseHandler.getPreparedStatement(SELECT_COORDINATES_BY_MARINE_ID, false);
             preparedSelectCoordinatesByMarineIdStatement.setLong(1, marineId);
             ResultSet resultSet = preparedSelectCoordinatesByMarineIdStatement.executeQuery();
+            App.logger.info("Выполнен запрос SELECT_COORDINATES_BY_MARINE_ID.");
             if (resultSet.next()) {
                 coordinates = new Coordinates(
                         resultSet.getDouble(DatabaseHandler.COORDINATES_TABLE_X_COLUMN),
                         resultSet.getFloat(DatabaseHandler.COORDINATES_TABLE_Y_COLUMN)
                 );
             } else throw new SQLException();
-            App.logger.info("Выполнен запрос SELECT_COORDINATES_BY_MARINE_ID.");
         } catch (SQLException exception) {
             App.logger.error("Произошла ошибка при выполнении запроса SELECT_COORDINATES_BY_MARINE_ID!");
             throw new SQLException(exception);
@@ -176,13 +177,13 @@ public class DatabaseCollectionManager {
                     databaseHandler.getPreparedStatement(SELECT_CHAPTER_BY_ID, false);
             preparedSelectChapterByIdStatement.setLong(1, chapterId);
             ResultSet resultSet = preparedSelectChapterByIdStatement.executeQuery();
+            App.logger.info("Выполнен запрос SELECT_CHAPTER_BY_ID.");
             if (resultSet.next()) {
                 chapter = new Chapter(
                         resultSet.getString(DatabaseHandler.CHAPTER_TABLE_NAME_COLUMN),
                         resultSet.getLong(DatabaseHandler.CHAPTER_TABLE_MARINES_COUNT_COLUMN)
                 );
             } else throw new SQLException();
-            App.logger.info("Выполнен запрос SELECT_CHAPTER_BY_ID.");
         } catch (SQLException exception) {
             App.logger.error("Произошла ошибка при выполнении запроса SELECT_CHAPTER_BY_ID!");
             throw new SQLException(exception);
@@ -192,8 +193,7 @@ public class DatabaseCollectionManager {
         return chapter;
     }
 
-    public SpaceMarine insertMarine(MarineRaw marineRaw) throws DatabaseHandlingException {
-        // TODO: Реализовать вставку создателя
+    public SpaceMarine insertMarine(MarineRaw marineRaw, User user) throws DatabaseHandlingException {
         // TODO: Если делаем орден уникальным, тут че-то много всего менять
         SpaceMarine marine;
         PreparedStatement preparedInsertMarineStatement = null;
@@ -226,8 +226,7 @@ public class DatabaseCollectionManager {
             preparedInsertMarineStatement.setString(5, marineRaw.getWeaponType().toString());
             preparedInsertMarineStatement.setString(6, marineRaw.getMeleeWeapon().toString());
             preparedInsertMarineStatement.setLong(7, chapterId);
-            // TODO: Тут должна быть вставка пользователя
-            preparedInsertMarineStatement.setLong(8, 1L);
+            preparedInsertMarineStatement.setLong(8, databaseUserManager.getUserIdByUsername(user));
             if (preparedInsertMarineStatement.executeUpdate() == 0) throw new SQLException();
             ResultSet generatedMarineKeys = preparedInsertMarineStatement.getGeneratedKeys();
             long spaceMarineId;
@@ -242,7 +241,6 @@ public class DatabaseCollectionManager {
             if (preparedInsertCoordinatesStatement.executeUpdate() == 0) throw new SQLException();
             App.logger.info("Выполнен запрос INSERT_COORDINATES.");
 
-            // TODO: Здесь должно оказаться имя создателя
             marine = new SpaceMarine(
                     spaceMarineId,
                     marineRaw.getName(),
@@ -253,7 +251,7 @@ public class DatabaseCollectionManager {
                     marineRaw.getWeaponType(),
                     marineRaw.getMeleeWeapon(),
                     marineRaw.getChapter(),
-                    "slamach"
+                    user.getUsername()
             );
 
             databaseHandler.commit();

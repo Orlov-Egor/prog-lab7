@@ -7,7 +7,6 @@ import java.time.format.DateTimeFormatter;
  * Main character. Is stored in the collection.
  */
 public class SpaceMarine implements Comparable<SpaceMarine> {
-    // TODO: Owner - это string?
     public static final int MAX_Y = 262;
     public static final double MIN_HEALTH = 0;
     public static final long MIN_MARINES = 1;

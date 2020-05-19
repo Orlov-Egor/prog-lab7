@@ -67,7 +67,9 @@ public class App {
                 new SumOfHealthCommand(collectionManager),
                 new MaxByMeleeWeaponCommand(collectionManager),
                 new FilterByWeaponTypeCommand(collectionManager),
-                new ServerExitCommand()
+                new ServerExitCommand(),
+                new LoginCommand(databaseUserManager),
+                new RegisterCommand(databaseUserManager)
         );
         Server server = new Server(port, MAX_CLIENTS, commandManager);
         server.run();

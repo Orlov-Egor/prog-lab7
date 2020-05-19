@@ -8,6 +8,7 @@ import common.exceptions.ScriptRecursionException;
 import common.interaction.MarineRaw;
 import common.interaction.Request;
 import common.interaction.ResponseCode;
+import common.interaction.User;
 import common.utility.Outputer;
 
 import java.io.File;
@@ -35,7 +36,7 @@ public class UserHandler {
      * @param serverResponseCode Last server's response code.
      * @return New request to server.
      */
-    public Request handle(ResponseCode serverResponseCode) {
+    public Request handle(ResponseCode serverResponseCode, User user) {
         String userInput;
         String[] userCommand;
         ProcessingCode processingCode;
@@ -81,10 +82,10 @@ public class UserHandler {
                 switch (processingCode) {
                     case OBJECT:
                         MarineRaw marineAddRaw = generateMarineAdd();
-                        return new Request(userCommand[0], userCommand[1], marineAddRaw);
+                        return new Request(userCommand[0], userCommand[1], marineAddRaw, user);
                     case UPDATE_OBJECT:
                         MarineRaw marineUpdateRaw = generateMarineUpdate();
-                        return new Request(userCommand[0], userCommand[1], marineUpdateRaw);
+                        return new Request(userCommand[0], userCommand[1], marineUpdateRaw, user);
                     case SCRIPT:
                         File scriptFile = new File(userCommand[1]);
                         if (!scriptFile.exists()) throw new FileNotFoundException();
@@ -109,9 +110,9 @@ public class UserHandler {
                 userScanner = scannerStack.pop();
             }
             scriptStack.clear();
-            return new Request();
+            return new Request(user);
         }
-        return new Request(userCommand[0], userCommand[1]);
+        return new Request(userCommand[0], userCommand[1], null, user);
     }
 
     /**

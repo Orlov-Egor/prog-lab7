@@ -5,6 +5,7 @@ import common.exceptions.CollectionIsEmptyException;
 import common.exceptions.DatabaseHandlingException;
 import common.exceptions.MarineNotFoundException;
 import common.exceptions.WrongAmountOfElementsException;
+import common.interaction.User;
 import server.utility.CollectionManager;
 import server.utility.DatabaseCollectionManager;
 import server.utility.ResponseOutputer;
@@ -27,7 +28,7 @@ public class RemoveByIdCommand extends AbstractCommand {
      * @return Command exit status.
      */
     @Override
-    public boolean execute(String stringArgument, Object objectArgument) {
+    public boolean execute(String stringArgument, Object objectArgument, User user) {
         try {
             if (stringArgument.isEmpty() || objectArgument != null) throw new WrongAmountOfElementsException();
             if (collectionManager.collectionSize() == 0) throw new CollectionIsEmptyException();

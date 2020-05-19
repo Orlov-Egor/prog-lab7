@@ -6,6 +6,7 @@ import common.exceptions.DatabaseHandlingException;
 import common.exceptions.MarineNotFoundException;
 import common.exceptions.WrongAmountOfElementsException;
 import common.interaction.MarineRaw;
+import common.interaction.User;
 import server.utility.CollectionManager;
 import server.utility.DatabaseCollectionManager;
 import server.utility.ResponseOutputer;
@@ -30,13 +31,13 @@ public class UpdateCommand extends AbstractCommand {
      * @return Command exit status.
      */
     @Override
-    public boolean execute(String stringArgument, Object objectArgument) {
-        // TODO: При создании объекта нужен пользователь
+    public boolean execute(String stringArgument, Object objectArgument, User user) {
+        // TODO: Запрещать изменять, если юзер не тот
         try {
             if (stringArgument.isEmpty() || objectArgument == null) throw new WrongAmountOfElementsException();
             if (collectionManager.collectionSize() == 0) throw new CollectionIsEmptyException();
 
-            Long id = Long.parseLong(stringArgument);
+            long id = Long.parseLong(stringArgument);
             if (id <= 0) throw new NumberFormatException();
             SpaceMarine oldMarine = collectionManager.getById(id);
             if (oldMarine == null) throw new MarineNotFoundException();
@@ -64,7 +65,7 @@ public class UpdateCommand extends AbstractCommand {
                 weaponType,
                 meleeWeapon,
                 chapter,
-                "slamach"
+                user.getUsername()
             ));
             ResponseOutputer.appendln("Солдат успешно изменен!");
             return true;

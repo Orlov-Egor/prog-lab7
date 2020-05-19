@@ -1,10 +1,13 @@
 package client;
 
+import client.utility.AuthHandler;
 import client.utility.UserHandler;
 import common.exceptions.ConnectionErrorException;
 import common.exceptions.NotInDeclaredLimitsException;
 import common.interaction.Request;
 import common.interaction.Response;
+import common.interaction.ResponseCode;
+import common.interaction.User;
 import common.utility.Outputer;
 
 import java.io.*;
@@ -24,13 +27,17 @@ public class Client {
     private SocketChannel socketChannel;
     private ObjectOutputStream serverWriter;
     private ObjectInputStream serverReader;
+    private AuthHandler authHandler;
+    private User user;
 
-    public Client(String host, int port, int reconnectionTimeout, int maxReconnectionAttempts, UserHandler userHandler) {
+    public Client(String host, int port, int reconnectionTimeout, int maxReconnectionAttempts, UserHandler userHandler,
+                  AuthHandler authHandler) {
         this.host = host;
         this.port = port;
         this.reconnectionTimeout = reconnectionTimeout;
         this.maxReconnectionAttempts = maxReconnectionAttempts;
         this.userHandler = userHandler;
+        this.authHandler = authHandler;
     }
 
     /**
@@ -38,11 +45,11 @@ public class Client {
     */
     public void run() {
         try {
-            boolean processingStatus = true;
-            while (processingStatus) {
+            while (true) {
                 try {
                     connectToServer();
-                    processingStatus = processRequestToServer();
+                    processAuthentication();
+                    processRequestToServer();
                 } catch (ConnectionErrorException exception) {
                     if (reconnectionAttempts >= maxReconnectionAttempts) {
                         Outputer.printerror("Превышено количество попыток подключения!");
@@ -94,13 +101,13 @@ public class Client {
     /**
     * Server request process.
     */
-    private boolean processRequestToServer() {
+    private void processRequestToServer() {
         Request requestToServer = null;
         Response serverResponse = null;
         do {
             try {
-                requestToServer = serverResponse != null ? userHandler.handle(serverResponse.getResponseCode()) :
-                        userHandler.handle(null);
+                requestToServer = serverResponse != null ? userHandler.handle(serverResponse.getResponseCode(), user) :
+                        userHandler.handle(null, user);
                 if (requestToServer.isEmpty()) continue;
                 serverWriter.writeObject(requestToServer);
                 serverResponse = (Response) serverReader.readObject();
@@ -112,7 +119,6 @@ public class Client {
             } catch (IOException exception){
                 Outputer.printerror("Соединение с сервером разорвано!");
                 try {
-                    reconnectionAttempts++;
                     connectToServer();
                 } catch (ConnectionErrorException | NotInDeclaredLimitsException reconnectionException) {
                     if (requestToServer.getCommandName().equals("exit"))
@@ -121,6 +127,31 @@ public class Client {
                 }
             }
         } while (!requestToServer.getCommandName().equals("exit")) ;
-        return false;
+    }
+
+    private void processAuthentication() {
+        Request requestToServer = null;
+        Response serverResponse = null;
+        do {
+            try {
+                requestToServer = authHandler.handle();
+                if (requestToServer.isEmpty()) continue;
+                serverWriter.writeObject(requestToServer);
+                serverResponse = (Response) serverReader.readObject();
+                Outputer.print(serverResponse.getResponseBody());
+            } catch (InvalidClassException | NotSerializableException exception){
+                Outputer.printerror("Произошла ошибка при отправке данных на сервер!");
+            } catch (ClassNotFoundException exception){
+                Outputer.printerror("Произошла ошибка при чтении полученных данных!");
+            } catch (IOException exception){
+                Outputer.printerror("Соединение с сервером разорвано!");
+                try {
+                    connectToServer();
+                } catch (ConnectionErrorException | NotInDeclaredLimitsException reconnectionException) {
+                    Outputer.println("Попробуйте повторить авторизацию позднее.");
+                }
+            }
+        } while (serverResponse == null || !serverResponse.getResponseCode().equals(ResponseCode.OK)) ;
+        user = requestToServer.getUser();
     }
 }
