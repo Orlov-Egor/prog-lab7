@@ -29,7 +29,6 @@ public class UpdateCommand extends AbstractCommand {
      */
     @Override
     public boolean execute(String stringArgument, Object objectArgument, User user) {
-        // TODO: Запрещать изменять, если юзер не тот
         try {
             if (stringArgument.isEmpty() || objectArgument == null) throw new WrongAmountOfElementsException();
             if (collectionManager.collectionSize() == 0) throw new CollectionIsEmptyException();

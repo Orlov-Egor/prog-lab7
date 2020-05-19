@@ -14,42 +14,19 @@ import server.utility.*;
  */
 public class App {
     public static Logger logger = LogManager.getLogger("ServerLogger");
+    public static String DATABASE_ADDRESS = "jdbc:postgresql://localhost:5432/studs";
+    public static String DATABASE_USERNAME = "s284724";
 
     private static final int MAX_CLIENTS = 1000;
 
     private static int port;
-
-    private static boolean initializePort(String[] portArgs) {
-        try {
-            if (portArgs.length != 1) throw new WrongAmountOfElementsException();
-            port = Integer.parseInt(portArgs[0]);
-            if (port < 0) throw new NotInDeclaredLimitsException();
-            return true;
-        } catch (WrongAmountOfElementsException exception) {
-            String jarName = new java.io.File(App.class.getProtectionDomain()
-                    .getCodeSource()
-                    .getLocation()
-                    .getPath())
-                    .getName();
-            Outputer.println("Использование: 'java -jar " + jarName + " <port>'");
-        } catch (NumberFormatException exception) {
-            Outputer.printerror("Порт должен быть представлен числом!");
-            App.logger.fatal("Порт должен быть представлен числом!");
-        } catch (NotInDeclaredLimitsException exception) {
-            Outputer.printerror("Порт не может быть отрицательным!");
-            App.logger.fatal("Порт не может быть отрицательным!");
-        }
-        App.logger.fatal("Ошибка инициализации порта запуска!");
-        return false;
-    }
+    private static String databasePassword;
 
     public static void main(String[] args) {
-        if (!initializePort(args)) return;
-        // TODO: TEST
-        DatabaseHandler databaseHandler = new DatabaseHandler("jdbc:postgresql://localhost:5432/studs", "s284724", "sgf353");
+        if (!initialize(args)) return;
+        DatabaseHandler databaseHandler = new DatabaseHandler(DATABASE_ADDRESS, DATABASE_USERNAME, databasePassword);
         DatabaseUserManager databaseUserManager = new DatabaseUserManager(databaseHandler);
         DatabaseCollectionManager databaseCollectionManager = new DatabaseCollectionManager(databaseHandler, databaseUserManager);
-
         CollectionManager collectionManager = new CollectionManager(databaseCollectionManager);
         CommandManager commandManager = new CommandManager(
                 new HelpCommand(),
@@ -73,8 +50,31 @@ public class App {
         );
         Server server = new Server(port, MAX_CLIENTS, commandManager);
         server.run();
-
-        // TODO: TEST
         databaseHandler.closeConnection();
+    }
+
+    private static boolean initialize(String[] args) {
+        try {
+            if (args.length != 2) throw new WrongAmountOfElementsException();
+            port = Integer.parseInt(args[0]);
+            if (port < 0) throw new NotInDeclaredLimitsException();
+            databasePassword = args[1];
+            return true;
+        } catch (WrongAmountOfElementsException exception) {
+            String jarName = new java.io.File(App.class.getProtectionDomain()
+                    .getCodeSource()
+                    .getLocation()
+                    .getPath())
+                    .getName();
+            Outputer.println("Использование: 'java -jar " + jarName + " <port> <db_password>'");
+        } catch (NumberFormatException exception) {
+            Outputer.printerror("Порт должен быть представлен числом!");
+            App.logger.fatal("Порт должен быть представлен числом!");
+        } catch (NotInDeclaredLimitsException exception) {
+            Outputer.printerror("Порт не может быть отрицательным!");
+            App.logger.fatal("Порт не может быть отрицательным!");
+        }
+        App.logger.fatal("Ошибка инициализации порта запуска!");
+        return false;
     }
 }
