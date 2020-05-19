@@ -359,33 +359,18 @@ public class DatabaseCollectionManager {
     }
 
     public void deleteMarineById(long marineId) throws DatabaseHandlingException {
-        // TODO: Орден так удалять нельзя, нужно либо уже делать его уникальным, либо автоудаление, как у координат
-        PreparedStatement preparedDeleteMarineByIdStatement = null;
+        // TODO: Если делаем орден уникальным, тут че-то много всего менять
         PreparedStatement preparedDeleteChapterByIdStatement = null;
         try {
-            databaseHandler.setCommitMode();
-            databaseHandler.setSavepoint();
-
-            preparedDeleteMarineByIdStatement = databaseHandler.getPreparedStatement(DELETE_MARINE_BY_ID, false);
             preparedDeleteChapterByIdStatement = databaseHandler.getPreparedStatement(DELETE_CHAPTER_BY_ID, false);
-
-            preparedDeleteMarineByIdStatement.setLong(1, marineId);
             preparedDeleteChapterByIdStatement.setLong(1, getChapterIdByMarineId(marineId));
-
-            if (preparedDeleteMarineByIdStatement.executeUpdate() == 0) Outputer.println(1);
-            App.logger.info("Выполнен запрос DELETE_MARINE_BY_ID.");
             if (preparedDeleteChapterByIdStatement.executeUpdate() == 0) Outputer.println(3);
             App.logger.info("Выполнен запрос DELETE_CHAPTER_BY_ID.");
-
-            databaseHandler.commit();
         } catch (SQLException exception) {
-            App.logger.error("Произошла ошибка при выполнении группы запросов на удаление объекта!");
-            databaseHandler.rollback();
+            App.logger.error("Произошла ошибка при выполнении запроса DELETE_CHAPTER_BY_ID!");
             throw new DatabaseHandlingException();
         } finally {
-            databaseHandler.closePreparedStatement(preparedDeleteMarineByIdStatement);
             databaseHandler.closePreparedStatement(preparedDeleteChapterByIdStatement);
-            databaseHandler.setNormalMode();
         }
     }
 

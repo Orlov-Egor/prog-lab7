@@ -26,6 +26,7 @@ public class ClearCommand extends AbstractCommand {
      */
     @Override
     public boolean execute(String stringArgument, Object objectArgument, User user) {
+        // TODO: Запрещать удалять, если юзер не тот
         try {
             if (!stringArgument.isEmpty() || objectArgument != null) throw new WrongAmountOfElementsException();
             databaseCollectionManager.clearCollection();

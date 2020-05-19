@@ -23,7 +23,7 @@ CREATE TABLE space_marine (
 	weapon_type weapon NOT NULL,
 	melee_weapon melee_weapon NOT NULL,
 	chapter_id bigint NOT NULL REFERENCES chapter(id),
-	user_id bigint NOT NULL REFERENCES my_user(id)
+	user_id bigint NOT NULL REFERENCES my_user(id) ON DELETE CASCADE
 );
 
 CREATE TABLE coordinates (
@@ -31,5 +31,4 @@ CREATE TABLE coordinates (
 	space_marine_id bigint UNIQUE NOT NULL REFERENCES space_marine(id) ON DELETE CASCADE,
 	x double precision NOT NULL,
 	y real NOT NULL CHECK (y <= 262),
-	UNIQUE (x, y) - УДАЛЕНО
 );
