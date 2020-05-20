@@ -50,6 +50,7 @@ public class Client {
                     connectToServer();
                     processAuthentication();
                     processRequestToServer();
+                    break;
                 } catch (ConnectionErrorException exception) {
                     if (reconnectionAttempts >= maxReconnectionAttempts) {
                         Outputer.printerror("Превышено количество попыток подключения!");

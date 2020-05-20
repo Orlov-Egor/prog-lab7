@@ -22,7 +22,7 @@ CREATE TABLE space_marine (
 	category astartes_category NOT NULL,
 	weapon_type weapon NOT NULL,
 	melee_weapon melee_weapon NOT NULL,
-	chapter_id bigint NOT NULL REFERENCES chapter(id),
+	chapter_id bigint NOT NULL REFERENCES chapter(id) ON DELETE CASCADE,
 	user_id bigint NOT NULL REFERENCES my_user(id) ON DELETE CASCADE
 );
 
