@@ -15,6 +15,9 @@ import java.time.LocalDateTime;
 import java.util.NavigableSet;
 import java.util.TreeSet;
 
+/**
+ * Operates the database collection itself.
+*/
 public class DatabaseCollectionManager {
     // MARINE_TABLE
     private final String SELECT_ALL_MARINES = "SELECT * FROM " + DatabaseHandler.MARINE_TABLE;
@@ -83,6 +86,11 @@ public class DatabaseCollectionManager {
         this.databaseUserManager = databaseUserManager;
     }
 
+    /**
+    * Create Marine.
+    * @param resultSet Result set parametres of Marine.
+    * @return New Marine.
+    */
     private SpaceMarine createMarine(ResultSet resultSet) throws SQLException {
         long id = resultSet.getLong(DatabaseHandler.MARINE_TABLE_ID_COLUMN);
         String name = resultSet.getString(DatabaseHandler.MARINE_TABLE_NAME_COLUMN);
@@ -108,6 +116,9 @@ public class DatabaseCollectionManager {
         );
     }
 
+    /**
+    * @return List of Marines.
+    */
     public NavigableSet<SpaceMarine> getCollection() throws DatabaseHandlingException {
         NavigableSet<SpaceMarine> marineList = new TreeSet<>();
         PreparedStatement preparedSelectAllStatement = null;
@@ -124,6 +135,11 @@ public class DatabaseCollectionManager {
         }
         return marineList;
     }
+
+    /**
+    * @param marineId Id of Marine.
+    * @return Chapter id.
+    */
     private long getChapterIdByMarineId(long marineId) throws SQLException {
         long chapterId;
         PreparedStatement preparedSelectMarineByIdStatement = null;
@@ -144,7 +160,10 @@ public class DatabaseCollectionManager {
         return chapterId;
     }
 
-
+    /**
+    * @param marineId Id of Marine.
+    * @return coordinates.
+    */
     private Coordinates getCoordinatesByMarineId(long marineId) throws SQLException {
         Coordinates coordinates;
         PreparedStatement preparedSelectCoordinatesByMarineIdStatement = null;
@@ -169,6 +188,10 @@ public class DatabaseCollectionManager {
         return coordinates;
     }
 
+    /**
+    * @param chapterId Id of Chapter.
+    * @return Chapter.
+    */
     private Chapter getChapterById(long chapterId) throws SQLException {
         Chapter chapter;
         PreparedStatement preparedSelectChapterByIdStatement = null;
@@ -193,6 +216,11 @@ public class DatabaseCollectionManager {
         return chapter;
     }
 
+    /**
+    * @param marineRaw Marine raw.
+    * @param user User.
+    * @return Marine.
+    */
     public SpaceMarine insertMarine(MarineRaw marineRaw, User user) throws DatabaseHandlingException {
         // TODO: Если делаем орден уникальным, тут че-то много всего менять
         SpaceMarine marine;
@@ -268,6 +296,10 @@ public class DatabaseCollectionManager {
         }
     }
 
+    /**
+    * @param marineRaw Marine raw.
+    * @param marineId Id of Marine.
+    */
     public void updateMarineById(long marineId, MarineRaw marineRaw) throws DatabaseHandlingException {
         // TODO: Если делаем орден уникальным, тут че-то много всего менять
         PreparedStatement preparedUpdateMarineNameByIdStatement = null;
@@ -358,6 +390,10 @@ public class DatabaseCollectionManager {
         }
     }
 
+    /**
+    * Delete Marine by id.
+    * @param marineId Id of Marine.
+    */
     public void deleteMarineById(long marineId) throws DatabaseHandlingException {
         // TODO: Если делаем орден уникальным, тут че-то много всего менять
         PreparedStatement preparedDeleteChapterByIdStatement = null;
@@ -374,6 +410,9 @@ public class DatabaseCollectionManager {
         }
     }
 
+    /**
+    * Clear the collection.
+    */
     public void clearCollection() throws DatabaseHandlingException {
         NavigableSet<SpaceMarine> marineList = getCollection();
         for (SpaceMarine marine : marineList) {

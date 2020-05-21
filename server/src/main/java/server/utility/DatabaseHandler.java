@@ -5,6 +5,9 @@ import server.App;
 
 import java.sql.*;
 
+/**
+ * A class for handle database.
+*/
 public class DatabaseHandler {
     // Table names
     public static final String MARINE_TABLE = "space_marine";
@@ -50,6 +53,9 @@ public class DatabaseHandler {
         connectToDataBase();
     }
 
+    /**
+    * A class for connect to database.
+    */
     private void connectToDataBase() {
         try {
             Class.forName(JDBC_DRIVER);
@@ -65,6 +71,9 @@ public class DatabaseHandler {
         }
     }
 
+    /**
+    * @return Pprepared statement.
+    */
     public PreparedStatement getPreparedStatement(String sqlStatement, boolean generateKeys) throws SQLException {
         PreparedStatement preparedStatement;
         try {
@@ -80,6 +89,9 @@ public class DatabaseHandler {
         }
     }
 
+    /**
+    * Close prepared statement.
+    */
     public void closePreparedStatement(PreparedStatement sqlStatement) {
         if (sqlStatement == null) return;
         try {
@@ -90,6 +102,9 @@ public class DatabaseHandler {
         }
     }
 
+    /**
+    * Close connection to database.
+    */
     public void closeConnection() {
         if (connection == null) return;
         try {
@@ -102,6 +117,9 @@ public class DatabaseHandler {
         }
     }
 
+    /**
+    * Set commit mode of database.
+    */
     public void setCommitMode() {
         try {
             if (connection == null) throw new SQLException();
@@ -111,6 +129,9 @@ public class DatabaseHandler {
         }
     }
 
+    /**
+    * Set normal mode of database.
+    */
     public void setNormalMode() {
         try {
             if (connection == null) throw new SQLException();
@@ -120,6 +141,9 @@ public class DatabaseHandler {
         }
     }
 
+    /**
+    * Commit database status.
+    */
     public void commit() {
         try {
             if (connection == null) throw new SQLException();
@@ -129,6 +153,9 @@ public class DatabaseHandler {
         }
     }
 
+    /**
+    * Roll back database status.
+    */
     public void rollback() {
         try {
             if (connection == null) throw new SQLException();
@@ -138,6 +165,9 @@ public class DatabaseHandler {
         }
     }
 
+    /**
+    * Set save point of database.
+    */
     public void setSavepoint() {
         try {
             if (connection == null) throw new SQLException();

@@ -8,6 +8,9 @@ import common.utility.Outputer;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
+/**
+ * Asks user a login and password.
+ */
 public class AuthAsker {
     private Scanner userScanner;
 
@@ -15,6 +18,10 @@ public class AuthAsker {
         this.userScanner = userScanner;
     }
 
+    /**
+    * Asks user a login.
+    * @return login.
+    */
     public String askLogin() {
         String login;
         while (true) {
@@ -36,6 +43,10 @@ public class AuthAsker {
         return login;
     }
 
+    /**
+    * Asks user a password.
+    * @return password.
+    */
     public String askPassword() {
         String password;
         while (true) {

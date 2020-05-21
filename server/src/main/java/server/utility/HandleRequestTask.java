@@ -7,6 +7,9 @@ import common.interaction.User;
 
 import java.util.concurrent.RecursiveTask;
 
+/**
+ * A class for handle request task.
+ */
 public class HandleRequestTask extends RecursiveTask<Response> {
     private Request request;
     private CommandManager commandManager;

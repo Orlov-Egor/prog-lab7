@@ -2,6 +2,9 @@ package common.interaction;
 
 import java.io.Serializable;
 
+/**
+ * Class for get username and password.
+*/
 public class User implements Serializable {
     private String username;
     private String password;
@@ -11,10 +14,16 @@ public class User implements Serializable {
         this.password = password;
     }
 
+    /**
+     * @return Username.
+    */
     public String getUsername() {
         return username;
     }
 
+    /**
+     * @return Password.
+    */
     public String getPassword() {
         return password;
     }

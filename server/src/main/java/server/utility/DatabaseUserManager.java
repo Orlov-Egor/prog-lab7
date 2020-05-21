@@ -8,6 +8,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * A manager of user database.
+ */
 public class DatabaseUserManager {
     // USER_TABLE
     private final String SELECT_USER_BY_ID = "SELECT * FROM " + DatabaseHandler.USER_TABLE +
@@ -27,6 +30,10 @@ public class DatabaseUserManager {
         this.databaseHandler = databaseHandler;
     }
 
+    /**
+    * @param userId User id.
+    * @return User by id.
+    */
     public User getUserById(long userId) throws SQLException {
         User user;
         PreparedStatement preparedSelectUserByIdStatement = null;
@@ -51,6 +58,11 @@ public class DatabaseUserManager {
         return user;
     }
 
+    /**
+    * Check user by username and password.
+    * @param user User.
+    * @return Result set.
+    */
     public boolean checkUserByUsernameAndPassword(User user) throws DatabaseHandlingException {
         PreparedStatement preparedSelectUserByUsernameAndPasswordStatement = null;
         try {
@@ -69,6 +81,11 @@ public class DatabaseUserManager {
         }
     }
 
+    /**
+    * Get user id by username.
+    * @param user User.
+    * @return User id.
+    */
     public long getUserIdByUsername(User user) throws DatabaseHandlingException {
         long userId;
         PreparedStatement preparedSelectUserByUsernameStatement = null;
@@ -90,6 +107,11 @@ public class DatabaseUserManager {
         }
     }
 
+    /**
+    * Insert user.
+    * @param user User.
+    * @return Status of insert.
+    */
     public boolean insertUser(User user) throws DatabaseHandlingException {
         PreparedStatement preparedInsertUserStatement = null;
         try {

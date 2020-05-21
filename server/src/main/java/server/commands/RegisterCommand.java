@@ -7,6 +7,9 @@ import common.interaction.User;
 import server.utility.DatabaseUserManager;
 import server.utility.ResponseOutputer;
 
+/**
+ * Command 'register'. Allows the user to register.
+ */
 public class RegisterCommand extends AbstractCommand {
     private DatabaseUserManager databaseUserManager;
 

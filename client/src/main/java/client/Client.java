@@ -130,6 +130,9 @@ public class Client {
         } while (!requestToServer.getCommandName().equals("exit")) ;
     }
 
+    /**
+    * Handle process authentication.
+    */
     private void processAuthentication() {
         Request requestToServer = null;
         Response serverResponse = null;

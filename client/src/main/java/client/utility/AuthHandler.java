@@ -8,6 +8,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
 
+/**
+ * Handle user login and password.
+*/
 public class AuthHandler {
     private final String loginCommand = "login";
     private final String registerCommand = "register";
@@ -18,6 +21,10 @@ public class AuthHandler {
         this.userScanner = userScanner;
     }
 
+    /**
+     * Handle user authentication.
+     * @return Request of user.
+    */
     public Request handle() {
         AuthAsker authAsker = new AuthAsker(userScanner);
         String command = authAsker.askQuestion("У вас уже есть учетная запись?") ? loginCommand : registerCommand;
@@ -25,6 +32,10 @@ public class AuthHandler {
         return new Request(command, "", user);
     }
 
+    /**
+     * Encode password.
+     * @return Coded password.
+    */
     public String encodePassword (String password) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-512");

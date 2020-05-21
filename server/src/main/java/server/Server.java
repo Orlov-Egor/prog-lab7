@@ -63,6 +63,9 @@ public class Server {
         }
     }
 
+    /**
+     * Acquire connection.
+     */
     public void acquireConnection() {
         try {
             semaphore.acquire();
@@ -73,6 +76,9 @@ public class Server {
         }
     }
 
+    /**
+     * Release connection.
+     */
     public void releaseConnection() {
         semaphore.release();
         App.logger.info("Разрыв соединения зарегистрирован.");
@@ -100,6 +106,10 @@ public class Server {
         }
     }
 
+    /**
+    * Checked stops of server.
+    * @return Status of server stop.
+    */
     private synchronized boolean isStopped()
     {
         return isStopped;

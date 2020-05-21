@@ -7,6 +7,9 @@ import common.interaction.User;
 import server.utility.DatabaseUserManager;
 import server.utility.ResponseOutputer;
 
+/**
+ * Command 'login'. Allows the user to login.
+ */
 public class LoginCommand extends AbstractCommand {
     private DatabaseUserManager databaseUserManager;
 

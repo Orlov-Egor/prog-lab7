@@ -53,6 +53,9 @@ public class App {
         databaseHandler.closeConnection();
     }
 
+    /**
+     * Controls user initialization.
+     */
     private static boolean initialize(String[] args) {
         try {
             if (args.length != 2) throw new WrongAmountOfElementsException();
